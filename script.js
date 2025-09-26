@@ -1,0 +1,644 @@
+(function(){
+  const form = document.getElementById('lcForm');
+  const role = document.getElementById('f41a_role');
+  const sec42M = document.getElementById('sec42M');
+  const sec42P = document.getElementById('sec42P');
+  const mixList = document.getElementById('mixList');
+  const addMixBtn = document.getElementById('addMix');
+  const mixPercent = document.getElementById('mixPercent');
+  const mixType = document.getElementById('mixType');
+  const mixHidden = document.getElementById('f42M');
+  const mixSumEl = document.getElementById('mixSum');
+  const f40E = document.getElementById('f40E');
+  const f40E_other = document.getElementById('f40E_other');
+  // 42C composed control
+  const f42C_hidden = document.getElementById('f42C');
+  const f42C_hasMaturity = document.getElementById('f42C_hasMaturity');
+  const f42C_select_no = document.getElementById('f42C_select_no');
+  const f42C_var_box = document.getElementById('f42C_var_box');
+  const f42C_select = document.getElementById('f42C_select');
+  const f42C_other = document.getElementById('f42C_other');
+  // 27 attachments
+  const f27 = document.getElementById('f27');
+  const sec27 = document.getElementById('sec27');
+  const attachmentsList = document.getElementById('attachmentsList');
+  const addAttachmentBtn = document.getElementById('addAttachment');
+  const attRelated = document.getElementById('attRelated');
+  const attTitle = document.getElementById('attTitle');
+  const f27_list = document.getElementById('f27_list');
+  // Per-attachment files
+  let attachmentRows = [];
+
+  function toggleConditional() {
+    const selected = role.value;
+    // 42P required for BY DEF PAYMENT and BY NEGOTIATION
+    if (selected === 'BY DEF PAYMENT' || selected === 'BY NEGOTIATION') {
+      sec42P.classList.remove('hidden');
+    } else {
+      sec42P.classList.add('hidden');
+      document.getElementById('f42P').value = '';
+    }
+    // 42M visible for MIX PAYMENT
+    if (selected === 'BY MIX PAYMENT') {
+      sec42M.classList.remove('hidden');
+    } else {
+      sec42M.classList.add('hidden');
+      clearMix();
+    }
+  }
+
+  function clearMix(){
+    mixList.innerHTML = '';
+    mixHidden.value = '';
+    if (mixSumEl) mixSumEl.textContent = '0%';
+  }
+
+  function addMixRow() {
+    const p = parseInt(mixPercent.value, 10);
+    const t = mixType.value;
+    if (Number.isNaN(p) || p <= 0 || p > 100) return;
+    const node = document.createElement('div');
+    node.className = 'pill';
+    node.dataset.percent = String(p);
+    node.dataset.type = t;
+    node.innerHTML = `%${p} ${t} <button type="button">Sil</button>`;
+    node.querySelector('button').addEventListener('click', ()=>{
+      node.remove();
+      serializeMix();
+    });
+    mixList.appendChild(node);
+    serializeMix();
+    mixPercent.value = '';
+  }
+
+  function serializeMix(){
+    const items = Array.from(mixList.children).map(x=>({p: Number(x.dataset.percent), t: x.dataset.type}));
+    const sum = items.reduce((a,b)=>a+(b.p||0),0);
+    if (mixSumEl) mixSumEl.textContent = `${sum}%`;
+    // warn on not 100
+    Array.from(mixList.children).forEach(x=>{
+      if (sum!==100) x.classList.add('warn'); else x.classList.remove('warn');
+    });
+    mixHidden.value = items.map(i=>`%${i.p} ${i.t}`).join(', ');
+  }
+
+  addMixBtn?.addEventListener('click', addMixRow);
+  role?.addEventListener('change', toggleConditional);
+  toggleConditional();
+
+  // 40E OTHER toggle
+  function toggle40E() {
+    if (f40E.value === 'OTHER') {
+      f40E_other.classList.remove('hidden');
+      f40E_other.required = true;
+    } else {
+      f40E_other.classList.add('hidden');
+      f40E_other.required = false;
+      f40E_other.value = '';
+    }
+  }
+  f40E.addEventListener('change', toggle40E);
+  toggle40E();
+
+  // 42C behavior
+  function update42C(){
+    const mode = f42C_hasMaturity.value;
+    // Toggle groups
+    if (mode === 'NO'){
+      f42C_select_no.classList.remove('hidden');
+      f42C_var_box.classList.add('hidden');
+      f42C_other.classList.add('hidden');
+      f42C_hidden.value = f42C_select_no.value || '';
+    } else if (mode === 'YES'){
+      f42C_select_no.classList.add('hidden');
+      f42C_var_box.classList.remove('hidden');
+      const v = f42C_select.value;
+      if (v === 'OTHER'){
+        f42C_other.classList.remove('hidden');
+        f42C_hidden.value = (f42C_other.value||'').trim();
+      } else {
+        f42C_other.classList.add('hidden');
+        f42C_other.value = '';
+        f42C_hidden.value = v || '';
+      }
+    } else {
+      f42C_select_no.classList.add('hidden');
+      f42C_var_box.classList.add('hidden');
+      f42C_other.classList.add('hidden');
+      f42C_hidden.value = '';
+    }
+  }
+  f42C_hasMaturity?.addEventListener('change', update42C);
+  f42C_select_no?.addEventListener('change', update42C);
+  f42C_select?.addEventListener('change', update42C);
+  f42C_other?.addEventListener('input', update42C);
+  update42C();
+
+  // 42a behavior: autofill by source and confirmation
+  const f42a_confirm = document.getElementById('f42a_confirm');
+  const f42a_source = document.getElementById('f42a_source');
+  const f42a_drawee = document.getElementById('f42a_drawee');
+  const f58a = document.getElementById('f58a');
+  const f51a = document.getElementById('f51a');
+  const f41a_bank = document.getElementById('f41a_bank');
+
+  function update42aFromSource(){
+    const src = f42a_source.value;
+    if (src === 'CONFIRMATION'){
+      f42a_drawee.value = (f58a?.value || '').trim();
+    } else if (src === 'APPLICANT'){
+      f42a_drawee.value = (f51a?.value || '').trim();
+    } else if (src === 'NOMINATED'){
+      f42a_drawee.value = (f41a_bank?.value || '').trim();
+    }
+  }
+  f42a_source?.addEventListener('change', update42aFromSource);
+  f42a_confirm?.addEventListener('change', ()=>{
+    if (f42a_confirm.value === 'CONFIRMING' && (f58a?.value || '').trim()){
+      f42a_source.value = 'CONFIRMATION';
+      update42aFromSource();
+    }
+  });
+
+  // Contextual helper texts under fields
+  installFieldHelps();
+  function installFieldHelps(){
+    const helps = {
+      f27: "Bu alanda başvuru formu ve ek sayfa adedi 1/N olarak yazılır (örn: 1/3).",
+      sec27: "1/1'den farklıysa ek sayfaları burada satır satır ve dosyalarıyla ekleyin.",
+      f40A: "Akreditifin yapısal türü: AT SIGHT, IRREVOCABLE, TRANSFERABLE vb.",
+      f20: "Akreditif/başvuru referans numarası. Banka veriyorsa boş bırakılabilir.",
+      f23: "Ön ihbara referans (varsa).",
+      f31C: "Düzenlenme tarihi YYMMDD formatında (örn: 250901).",
+      f40E: "UCP/EUCP LATEST VERSION veya OTHER seçiniz.",
+      f31D: "Akreditifin vadesi YYMMDD (Place of Expiry).",
+      f51a: "Amir/Alıcının bankası: SWIFT veya ad.",
+      f50: "Amir/Alıcı tam unvan ve adres.",
+      f59: "Lehtar/Satıcı tam unvan ve adres.",
+      f32B_ccy: "Para birimi (3 harf: USD, EUR, TRY).",
+      f32B_amt: "Akreditif tutarı (tolerans hariç).",
+      f39A: "Tutar toleransı +/- (örn: 10/10).",
+      f39B: "Maksimum kredi tutarı.",
+      f39C: "Navlun, sigorta, faiz gibi ilave tutarlar.",
+      f41a_bank: "Kullanımda olacağı/görevli banka adı veya SWIFT.",
+      f41a_role: "BY PAYMENT / BY DEF PAYMENT / BY ACCEPTANCE / BY NEGOTIATION / BY MIX PAYMENT.",
+      f42C_select_no: "Vade yok ise SIGHT veya AT SIGHT seçiniz.",
+      f42C_select: "Vade var ise şablon seçin veya OTHER ile serbest ifade girin.",
+      f42a_drawee: "Poliçeyi ödeyecek banka (teyit varsa teyit bankası; yoksa amir veya görevli).",
+      f42P: "Vadeli/iştira akreditifler için vade şartı (örn: 90 DAYS FROM B/L DATE).",
+      f43P: "Kısmi yüklemeler: İzin var/yok/şartlı.",
+      f44A: "Malı teslim alma yeri (liman/havalimanı dışı).",
+      f44E: "Yükleme limanı/havalimanı.",
+      f44F: "Boşaltma limanı/varış havalimanı.",
+      f44B: "Teslim etme yeri (varış).",
+      f44C: "Son yükleme tarihi YYMMDD.",
+      f44D: "Yükleme periyodu (örn: NOT EARLIER THAN ...).",
+      f45A: "Mal ve hizmetlerin detaylı tanımı (miktar, birim fiyat, Incoterms).",
+      f46A: "Gerekli belge listesi ve adetleri.",
+      f47A: "İlave şartlar ve belge üzeri ibareler.",
+      f49G: "Lehtar için özel ödeme şartları (postfinansman/iskonto vb.).",
+      f49H: "Alan banka için özel ödeme şartları.",
+      f71D: "Masrafların kime ait olduğu (örn: all charges ... are on beneficiary).",
+      f48: "İbraz süresi gün olarak (boşsa 21 gün kabul).",
+      f49: "Teyit talimatı: WITHOUT / CONFIRM / MAY ADD.",
+      f58a: "Teyit talep edilen taraf (banka adı/SWIFT).",
+      f57a: "İkinci ihbar bankası."
+    };
+    Object.entries(helps).forEach(([id, text])=>{
+      const el = document.getElementById(id);
+      if (!el) return;
+      const group = el.closest('.field-group') || el.parentElement;
+      if (!group) return;
+      const sm = document.createElement('small');
+      sm.textContent = text;
+      group.appendChild(sm);
+    });
+  }
+
+  // Helper: normalize date inputs to YYMMDD if user types DD.MM.YYYY or YYYY-MM-DD
+  const dateInputs = ['f31C','f31D','f44C'].map(id=>document.getElementById(id));
+  dateInputs.forEach(inp=>{
+    inp?.addEventListener('blur', ()=>{
+      if (!inp.value) return;
+      inp.value = toYYMMDD(inp.value);
+    });
+  });
+
+  function toYYMMDD(raw){
+    let s = String(raw).trim();
+    if (/^\d{6}$/.test(s)) return s; // already YYMMDD
+    //  DD.MM.YYYY or DD/MM/YYYY
+    let m = s.match(/^(\d{1,2})[\.\/](\d{1,2})[\.\/-](\d{2,4})$/);
+    if (m){
+      const dd = m[1].padStart(2,'0');
+      const mm = m[2].padStart(2,'0');
+      const yyyy = m[3].length===2 ? ('20'+m[3]) : m[3];
+      return yyyy.slice(2)+mm+dd;
+    }
+    // YYYY-MM-DD
+    m = s.match(/^(\d{4})[-\.\/](\d{1,2})[-\.\/](\d{1,2})$/);
+    if (m){
+      const yyyy = m[1];
+      const mm = m[2].padStart(2,'0');
+      const dd = m[3].padStart(2,'0');
+      return yyyy.slice(2)+mm+dd;
+    }
+    return s.replace(/\D/g,'').slice(0,6);
+  }
+
+  // 27 parsing and UI toggle
+  function parse27(val){
+    const m = String(val||'').match(/^(\s*)(\d+)(\s*)\/(\s*)(\d+)(\s*)$/);
+    if (!m) return null;
+    const top = parseInt(m[2],10);
+    const bottom = parseInt(m[5],10);
+    if (top!==1 || bottom<1) return null;
+    return {top, bottom};
+  }
+
+  function toggle27(){
+    const info = parse27(f27.value);
+    if (!info){
+      sec27.classList.add('hidden');
+      attachmentsList.innerHTML='';
+      f27_list.value='';
+      return;
+    }
+    if (info.bottom>1){
+      sec27.classList.remove('hidden');
+    } else {
+      sec27.classList.add('hidden');
+      attachmentsList.innerHTML='';
+      f27_list.value='';
+    }
+  }
+
+  function addAttachment(){
+    const rel = attRelated.value;
+    const title = attTitle.value.trim();
+    if (!title) return;
+    const row = document.createElement('div');
+    row.className='attachment';
+    const rowId = cryptoRandomId();
+    row.dataset.id = rowId;
+    row.innerHTML = `<span class="tag">${rel}</span><span>${escapeHtml(title)}</span><span class="spacer"></span><input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt"><button type="button">Sil</button>`;
+    const fileInput = row.querySelector('input[type=file]');
+    fileInput.addEventListener('change', ()=> serializeAttachments());
+    row.querySelector('button').addEventListener('click',()=>{ 
+      row.remove(); 
+      attachmentRows = attachmentRows.filter(x=>x.id!==rowId);
+      serializeAttachments(); 
+    });
+    attachmentsList.appendChild(row);
+    attachmentRows.push({id: rowId, rel, title});
+    attTitle.value='';
+    serializeAttachments();
+  }
+
+  function serializeAttachments(){
+    const rows = Array.from(attachmentsList.children).map(el=>{
+      const id = el.dataset.id;
+      const tag = el.querySelector('.tag').textContent;
+      const text = el.querySelector('span:nth-child(2)').textContent;
+      const fileInput = el.querySelector('input[type=file]');
+      const file = (fileInput && fileInput.files && fileInput.files[0]) ? fileInput.files[0] : null;
+      return { id, field: tag, title: text, fileName: file? file.name : null };
+    });
+    f27_list.value = JSON.stringify({ attachments: rows });
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+  }
+
+  f27.addEventListener('input', toggle27);
+  addAttachmentBtn?.addEventListener('click', addAttachment);
+  toggle27();
+
+  function cryptoRandomId(){
+    return (Math.random().toString(36).slice(2))+Date.now().toString(36);
+  }
+
+  // Validation
+  form?.addEventListener('submit', (e)=>{
+    clearFieldErrors();
+    // Tüm görünür alanları zorunlu olarak değerlendir
+    const allFields = Array.from(form.querySelectorAll('input, select, textarea'))
+      .filter(el => shouldValidateField(el));
+    allFields.forEach(el => {
+      const val = (el.value||'').toString().trim();
+      if (!val) addFieldError(el, 'Bu alan boş bırakılamaz');
+    });
+    // Currency code 3 letters
+    const ccy = document.getElementById('f32B_ccy').value.trim();
+    if (ccy && !/^[A-Z]{3}$/.test(ccy.toUpperCase())) addFieldError(document.getElementById('f32B_ccy'), 'Para cinsi 3 harf olmalı (örn: USD)');
+    // YYMMDD patterns
+    ['f31D','f44C'].forEach(id=>{
+      const v = document.getElementById(id).value.trim();
+      if (v && !/^\d{6}$/.test(v)) addFieldError(document.getElementById(id), 'Tarih formatı YYMMDD olmalı (örn: 250909)');
+    });
+    // Role-based checks
+    const r = role.value;
+    if ((r==='BY DEF PAYMENT' || r==='BY NEGOTIATION') && !document.getElementById('f42P').value.trim()){
+      addFieldError(document.getElementById('f42P'), 'Vadeli/iştira detayını giriniz');
+    }
+    if (r==='BY MIX PAYMENT' && !mixHidden.value.trim()){
+      addFieldError(document.getElementById('sec42M'), 'Karışık ödeme satırlarını ekleyiniz (toplam 100% olmalı)');
+    }
+    if (r==='BY MIX PAYMENT'){
+      // enforce 100%
+      const items = Array.from(mixList.children).map(x=>Number(x.dataset.percent));
+      const total = items.reduce((a,b)=>a+(b||0),0);
+      if (total !== 100) addFieldError(document.getElementById('sec42M'), '42M toplam yüzde 100 olmalıdır');
+    }
+    // If role implies time-based instruments and user chose OTHER but left empty
+    if ((r==='BY ACCEPTANCE' || r==='BY NEGOTIATION' || r==='BY MIX PAYMENT' || r==='BY DEF PAYMENT') && !f42C_hidden.value.trim()){
+      addFieldError(document.getElementById('f42C_select')||document.getElementById('f42C_select_no')||document.getElementById('f42C_hasMaturity'), 'Poliçe vadesini belirtiniz');
+    }
+    // 42a required for time-based instruments
+    if ((r==='BY ACCEPTANCE' || r==='BY NEGOTIATION' || r==='BY MIX PAYMENT' || r==='BY DEF PAYMENT') && !f42a_drawee.value.trim()){
+      addFieldError(f42a_drawee, 'Drawee (poliçeyi ödeyecek banka) yazılmalı');
+    }
+    if (f40E.value==='OTHER' && !f40E_other.value.trim()){
+      addFieldError(f40E_other, 'OTHER seçildi, kuralı yazınız');
+    }
+    // 27 validation
+    const p27 = parse27(f27.value);
+    if (!p27){
+      addFieldError(document.getElementById('f27'), 'Format 1/N (N≥1) ve üst her zaman 1 olmalıdır');
+    } else if (p27.bottom>1){
+      const rows = Array.from(attachmentsList.children);
+      if (rows.length !== (p27.bottom-1)){
+        addFieldError(document.getElementById('sec27'), `Ek sayfa sayısı ${p27.bottom-1} olmalıdır`);
+      }
+      const missing = rows.filter(el=>{
+        const fileInput = el.querySelector('input[type=file]');
+        return !(fileInput && fileInput.files && fileInput.files[0]);
+      });
+      if (missing.length){
+        addFieldError(document.getElementById('sec27'), 'Her ek sayfa için bir dosya yükleyiniz');
+      }
+    }
+    if (document.querySelector('.error-msg')) e.preventDefault();
+  });
+
+  // Also validate optional fields on blur/change to show guidance immediately
+  const watchInputs = Array.from(document.querySelectorAll('input, textarea, select'));
+  watchInputs.forEach(el=>{
+    const handler = ()=>{
+      // clear previous error for this field only
+      const group = el.closest('.field-group') || el.parentElement;
+      group?.querySelector('.error-msg')?.remove();
+      el.classList.remove('invalid');
+      // basic live rules
+      if (shouldValidateField(el)){
+        if (!(el.value||'').toString().trim()) addFieldError(el,'Bu alan boş bırakılamaz');
+      }
+      if (el.id==='f32B_ccy'){
+        const v = el.value.trim();
+        if (v && !/^[A-Z]{3}$/.test(v.toUpperCase())) addFieldError(el,'Para cinsi 3 harf olmalı (örn: USD)');
+      }
+      if (el.id==='f44C' || el.id==='f31D' || el.id==='f31C'){
+        const v = el.value.trim();
+        if (v && !/^\d{6}$/.test(v)) addFieldError(el,'Tarih formatı YYMMDD olmalı (örn: 250909)');
+      }
+    };
+    el.addEventListener('blur', handler);
+    el.addEventListener('change', handler);
+  });
+
+  function addFieldError(element, message){
+    if (!element) return;
+    const container = element.closest('.field-group') || element.parentElement;
+    element.classList?.add('invalid');
+    // Avoid duplicate error messages
+    if (container && !container.querySelector('.error-msg')){
+      const msg = document.createElement('div');
+      msg.className = 'error-msg';
+      msg.textContent = message;
+      container.appendChild(msg);
+    }
+  }
+
+  function clearFieldErrors(){
+    document.querySelectorAll('.error-msg').forEach(n=>n.remove());
+    document.querySelectorAll('.invalid').forEach(n=>n.classList.remove('invalid'));
+  }
+
+  function isVisible(el){
+    if (!el) return false;
+    if (el.classList && el.classList.contains('hidden')) return false;
+    let p = el.parentElement;
+    while (p){
+      if (p.classList && p.classList.contains('hidden')) return false;
+      p = p.parentElement;
+    }
+    return true;
+  }
+
+  function shouldValidateField(el){
+    if (!isVisible(el)) return false;
+    if (el.type === 'hidden') return false;
+    if (el.disabled) return false;
+    // Don't validate 42M input fields when 42M is complete (100%)
+    if (el.id === 'mixPercent' || el.id === 'mixType'){
+      const items = Array.from(mixList.children).map(x=>Number(x.dataset.percent));
+      const total = items.reduce((a,b)=>a+(b||0),0);
+      if (total === 100) return false;
+    }
+    return true;
+  }
+
+  // Demo data filler
+  const demoBtn = document.getElementById('demoBtn');
+  demoBtn?.addEventListener('click', fillDemoData);
+  const pdfBtn = document.getElementById('pdfBtn');
+  pdfBtn?.addEventListener('click', generatePdf);
+
+  // Persist main form fields to localStorage for MT700 sync (yalnızca yazarken kaydet, sayfa açılışında otomatik doldurma YOK)
+  const mainForm = document.getElementById('lcForm');
+  // Save
+  mainForm?.addEventListener('input', (e)=>{
+    if (!(e.target instanceof HTMLElement)) return;
+    const id = e.target.id;
+    if (id) localStorage.setItem(id, (e.target.value||'').toString());
+  });
+
+  // Reset button handler
+  const resetBtn = document.querySelector('button[type="reset"]');
+  resetBtn?.addEventListener('click', ()=>{
+    setTimeout(()=>{
+      clearMix();
+      attachmentsList.innerHTML = '';
+      f27_list.value = '';
+      clearFieldErrors();
+    }, 10);
+  });
+
+  function fillDemoData(){
+    clearFieldErrors();
+    // Reset form first
+    form.reset();
+    clearMix();
+    clearFieldErrors();
+
+    document.getElementById('f27').value = '1/3';
+    toggle27();
+    // add two attachments
+    attRelated.value = '45A'; attTitle.value = 'Detailed goods description'; addAttachment();
+    attRelated.value = '46A'; attTitle.value = 'Document list extension'; addAttachment();
+    // set files placeholders cannot be programmatically for security; leave empty
+
+    document.getElementById('f40A').value = 'IRREVOCABLE';
+    document.getElementById('f20').value = 'LC2025001';
+    document.getElementById('f31C').value = '250901';
+    document.getElementById('f40E').value = 'UCP LATEST VERSION'; toggle40E();
+    document.getElementById('f31D').value = '251231';
+    document.getElementById('f51a').value = 'ISBKTRISXXX';
+    document.getElementById('f50').value = 'ABC IMPORT LTD., 123 Main St, City, Country';
+    document.getElementById('f59').value = 'XYZ EXPORT LLC, 456 Business Ave, City, Country';
+    document.getElementById('f32B_ccy').value = 'USD';
+    document.getElementById('f32B_amt').value = '100000';
+    document.getElementById('f39A').value = '10/10';
+    document.getElementById('f39B').value = '110000';
+    document.getElementById('f39C').value = 'FREIGHT, INSURANCE';
+    document.getElementById('f41a_bank').value = 'NOMINATED BANK XYZ';
+    document.getElementById('f41a_role').value = 'BY MIX PAYMENT'; toggleConditional();
+
+    // 42C: vade var, 60 days from B/L date
+    document.getElementById('f42C_hasMaturity').value = 'YES'; update42C();
+    document.getElementById('f42C_select').value = '60 DAYS FROM B/L DATE'; update42C();
+
+    // 42a drawee
+    document.getElementById('f42a_confirm').value = 'NON-CONFIRMING';
+    document.getElementById('f42a_source').value = 'NOMINATED';
+    update42aFromSource();
+    if (!document.getElementById('f42a_drawee').value) document.getElementById('f42a_drawee').value = 'NOMINATED BANK XYZ';
+
+    // 42M: 60 DEF, 30 ACCEPTANCE, 10 RED CLAUSE
+    mixPercent.value = 60; mixType.value = 'BY DEF PAYMENT'; addMixRow();
+    mixPercent.value = 30; mixType.value = 'BY ACCEPTANCE'; addMixRow();
+    mixPercent.value = 10; mixType.value = 'RED CLAUSE'; addMixRow();
+
+    document.getElementById('f42P').value = '60 DAYS FROM BILL OF LADING DATE';
+    document.getElementById('f23').value = 'REF123456';
+    document.getElementById('f43P').value = 'İzin var';
+    document.getElementById('f44A').value = 'ISTANBUL';
+    document.getElementById('f44E').value = 'MERSİN';
+    document.getElementById('f44F').value = 'HAMBURG';
+    document.getElementById('f44B').value = 'HAMBURG CITY';
+    document.getElementById('f44C').value = '251015';
+    document.getElementById('f44D').value = 'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015';
+    document.getElementById('f45A').value = 'ELECTRONICS, 1000 PCS, FOB ISTANBUL';
+    document.getElementById('f46A').value = 'SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS';
+    document.getElementById('f47A').value = 'ALL DOCUMENTS MUST STATE L/C NUMBER';
+    document.getElementById('f49G').value = 'POST FINANCING AVAILABLE';
+    document.getElementById('f49H').value = 'BANK DISCOUNT TERMS APPLY';
+    document.getElementById('f71D').value = 'ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY';
+    document.getElementById('f48').value = 21;
+    document.getElementById('f49').value = 'MAY ADD';
+    document.getElementById('f58a').value = 'CONFIRMING BANK ABC';
+    document.getElementById('f57a').value = 'SECOND ADVISING BANK DEF';
+
+    // push to storage for MT700
+    Array.from(document.querySelectorAll('#lcForm [id]')).forEach(el=>{
+      const id = el.id; if (!id) return; localStorage.setItem(id, (el.value||'').toString());
+    });
+  }
+
+  // Build printable text and open in new window; user can print to PDF
+  function generatePdf(){
+    // collect values
+    const get = id => (document.getElementById(id)?.value||'').toString().trim();
+    const v = {
+      f27:get('f27'), f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
+      f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), f32B_ccy:get('f32B_ccy'), f32B_amt:get('f32B_amt'),
+      f39A:get('f39A'), f39B:get('f39B'), f39C:get('f39C'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
+      f42C:get('f42C'), f42a:get('f42a_drawee'), f42M:get('f42M'), f42P:get('f42P'), f43P:get('f43P'), f43T:get('f43T'),
+      f44A:get('f44A'), f44E:get('f44E'), f44F:get('f44F'), f44B:get('f44B'), f44C:get('f44C'), f44D:get('f44D'),
+      f45A:get('f45A'), f46A:get('f46A'), f47A:get('f47A'), f49G:get('f49G'), f49H:get('f49H'), f71D:get('f71D'),
+      f48:get('f48'), f49:get('f49'), f58a:get('f58a'), f57a:get('f57a')
+    };
+    const sections = [
+      ['27 : Sequence of Total', v.f27],
+      ['40A: Form of Documentary Credit', v.f40A],
+      ['20 : Documentary Credit Number', v.f20],
+      ['23 : Reference to Pre-Advice', v.f23],
+      ['31C: Date of Issue', toIso(v.f31C)],
+      ['40E: Applicable Rules', v.f40E],
+      ['31D: Date and Place of Expiry', toIso(v.f31D)],
+      ['51a : Applicant Bank', v.f51a],
+      ['50 : Applicant', v.f50],
+      ['59 : Beneficiary', v.f59],
+      ['32B: Currency Code, Amount', `${(v.f32B_ccy||'').toUpperCase()}${Number(v.f32B_amt||0).toFixed(2)}`],
+      ['39A: Percentage Credit Amount Tolerance', v.f39A],
+      ['39B: Maximum Credit Amount', v.f39B],
+      ['39C: Additional Amounts Covered', v.f39C],
+      ['41a : Available With ... By ...', `${v.f41a_bank}\n${v.f41a_role}`],
+      ['42C: Drafts at ...', v.f42C],
+      ['42a : Drawee', v.f42a],
+      ['42M: Mixed Payment Details', v.f42M],
+      ['42P: Deferred Payment Details', v.f42P],
+      ['43P: Partial Shipments', v.f43P],
+      ['43T: Transhipment', v.f43T],
+      ['44A: Place of Taking in Charge/Dispatch from', v.f44A],
+      ['44E: Port of Loading/Airport of Departure', v.f44E],
+      ['44F: Port of Discharge/Airport of Destination', v.f44F],
+      ['44B: Place of Final Destination', v.f44B],
+      ['44C: Latest Date of Shipment', toIso(v.f44C)],
+      ['44D: Shipment Period', v.f44D],
+      ['45A: Description of Goods and/or Services', v.f45A],
+      ['46A: Documents Required', v.f46A],
+      ['47A: Additional Conditions', v.f47A],
+      ['49G: Special Payment Conditions for Beneficiary', v.f49G],
+      ['49H: Special Payment Conditions for Applicant Bank', v.f49H],
+      ['71D: Charges', v.f71D],
+      ['48 : Period for Presentation in Days', v.f48],
+      ['49 : Confirmation Instructions', v.f49],
+      ['58a: Requested Confirmation Party', v.f58a],
+      ['57a: Second Advising Bank', v.f57a]
+    ];
+    const win = window.open('', '_blank');
+    if (!win) return alert('Açılır pencere engellendi. Lütfen izin verin.');
+    const style = `
+      body{font:12px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;white-space:pre-wrap;padding:24px;color:#111}
+      .row{margin:0 0 12px 0}
+      .label{font-weight:700}
+      .value{margin-top:2px;}
+    `;
+    const html = [`<html><head><title>Başvuru Formu</title><style>${style}</style></head><body>`];
+    sections.forEach(([label, value])=>{
+      html.push(`<div class="row"><div class="label">${escapeHtml(label)}</div><div class="value">${escapeHtml(String(value||''))}</div></div>`);
+    });
+    html.push(`</body></html>`);
+    win.document.write(html.join(''));
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
+  function toIso(yymmdd){
+    if (!yymmdd || yymmdd.length!==6) return yymmdd;
+    const yy = yymmdd.slice(0,2), mm=yymmdd.slice(2,4), dd=yymmdd.slice(4,6);
+    return `20${yy}-${mm}-${dd}`;
+  }
+
+  function addFieldError(element, message){
+    if (!element) return;
+    const container = element.closest('.field-group') || element.parentElement;
+    element.classList?.add('invalid');
+    if (container && !container.querySelector('.error-msg')){
+      const msg = document.createElement('div');
+      msg.className = 'error-msg';
+      msg.textContent = message;
+      container.appendChild(msg);
+    }
+  }
+
+  function clearFieldErrors(){
+    document.querySelectorAll('.error-msg').forEach(n=>n.remove());
+    document.querySelectorAll('.invalid').forEach(n=>n.classList.remove('invalid'));
+  }
+})();
+
+
