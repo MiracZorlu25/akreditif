@@ -5,7 +5,7 @@
 ### 1. **Admin Panel Testi**
 - [ ] `admin.html` sayfasını aç
 - [ ] Giriş ekranının göründüğünü kontrol et
-- [ ] Kullanıcı adı: `admin`, Şifre: `akreditif2025` ile giriş yap
+- [ ] Kullanıcı adı: `admin`, Şifre: `12345` ile giriş yap
 - [ ] ✅ "Giriş başarılı!" mesajını gör
 - [ ] Admin panelinin açıldığını kontrol et
 - [ ] OpenAI API Key'ini gir ve kaydet
@@ -209,7 +209,7 @@
 ## 🔐 Admin Panel Giriş Bilgileri
 
 **Kullanıcı Adı:** `admin`  
-**Şifre:** `akreditif2025`
+**Şifre:** `12345`
 
 **Not:** Bu bilgiler sadece test amaçlıdır. Gerçek kullanımda güvenli şifreler kullanılmalıdır.
 
