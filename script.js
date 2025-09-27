@@ -886,8 +886,30 @@
     }
   }
 
+  // Load default field rules if not exists
+  function loadDefaultFieldRules() {
+    if (typeof CONFIG === 'undefined' || !CONFIG.DEFAULT_FIELD_RULES) {
+      console.warn('CONFIG.DEFAULT_FIELD_RULES not found');
+      return;
+    }
+
+    const existingRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+    const defaultRules = CONFIG.DEFAULT_FIELD_RULES;
+    
+    // Merge default rules with existing rules (existing rules take priority)
+    const mergedRules = { ...defaultRules, ...existingRules };
+    
+    // Save merged rules back to localStorage
+    localStorage.setItem('field_rules', JSON.stringify(mergedRules));
+    
+    console.log('Default field rules loaded:', Object.keys(defaultRules).length, 'rules');
+  }
+
   // Update display on load
   updateApiKeyDisplay();
+  
+  // Load default field rules
+  loadDefaultFieldRules();
 
   // AI Check functionality
   const aiCheckBtn = document.getElementById('aiCheckBtn');

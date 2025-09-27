@@ -269,6 +269,7 @@
         <button id="loadFieldRule" style="background: #0ea5e9; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Yükle</button>
         <button id="deleteFieldRule" style="background: #dc2626; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Sil</button>
         <button id="testFieldRule" style="background: #7c3aed; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Test Et</button>
+        <button id="resetToDefaults" style="background: #f59e0b; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Varsayılanlara Sıfırla</button>
       </div>
       
       <div id="fieldRuleStatus" class="status-message" style="display: none; margin-top: 10px;"></div>
@@ -560,8 +561,28 @@
       const loadFieldRuleBtn = document.getElementById('loadFieldRule');
       const deleteFieldRuleBtn = document.getElementById('deleteFieldRule');
       const testFieldRuleBtn = document.getElementById('testFieldRule');
+      const resetToDefaultsBtn = document.getElementById('resetToDefaults');
       const fieldRuleStatus = document.getElementById('fieldRuleStatus');
       const rulesList = document.getElementById('rulesList');
+
+      // Load default field rules if not exists
+      function loadDefaultFieldRules() {
+        if (typeof CONFIG === 'undefined' || !CONFIG.DEFAULT_FIELD_RULES) {
+          console.warn('CONFIG.DEFAULT_FIELD_RULES not found');
+          return;
+        }
+
+        const existingRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+        const defaultRules = CONFIG.DEFAULT_FIELD_RULES;
+        
+        // Merge default rules with existing rules (existing rules take priority)
+        const mergedRules = { ...defaultRules, ...existingRules };
+        
+        // Save merged rules back to localStorage
+        localStorage.setItem('field_rules', JSON.stringify(mergedRules));
+        
+        console.log('Default field rules loaded:', Object.keys(defaultRules).length, 'rules');
+      }
 
       // Load field rules from localStorage
       function loadFieldRules() {
@@ -739,6 +760,20 @@ Bu kurala göre test değerini analiz et ve sonucu JSON formatında ver:
         }, 3000);
       }
 
+      // Reset to default rules
+      resetToDefaultsBtn.addEventListener('click', function() {
+        if (confirm('Tüm kuralları varsayılan değerlere sıfırlamak istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+          if (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_FIELD_RULES) {
+            localStorage.setItem('field_rules', JSON.stringify(CONFIG.DEFAULT_FIELD_RULES));
+            showFieldRuleStatus('✅ Kurallar varsayılan değerlere sıfırlandı!', 'success');
+            loadFieldRules();
+            clearFieldRuleForm();
+          } else {
+            showFieldRuleStatus('❌ Varsayılan kurallar bulunamadı!', 'error');
+          }
+        }
+      });
+
       // Edit field rule (global function)
       window.editFieldRule = function(fieldId) {
         fieldSelector.value = fieldId;
@@ -746,6 +781,7 @@ Bu kurala göre test değerini analiz et ve sonucu JSON formatında ver:
       };
 
       // Initialize field rules
+      loadDefaultFieldRules();
       loadFieldRules();
 
       // Initialize
