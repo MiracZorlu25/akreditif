@@ -925,6 +925,23 @@
       return;
     }
 
+    // Test API Key first
+    try {
+      const testResponse = await fetch('https://api.openai.com/v1/models', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
+      
+      if (!testResponse.ok) {
+        alert('API Key geçersiz! Lütfen Admin Panel\'den geçerli bir API Key kaydedin.\n\nHata: ' + testResponse.status + ' ' + testResponse.statusText);
+        return;
+      }
+    } catch (error) {
+      alert('API Key test edilemedi! İnternet bağlantınızı kontrol edin.\n\nHata: ' + error.message);
+      return;
+    }
+
     aiCheckBtn.disabled = true;
     aiCheckBtn.textContent = 'AI Kontrol Ediliyor...';
 
@@ -947,10 +964,11 @@
   }
 
   function collectFormData() {
+    const form = document.getElementById('lcForm');
     const data = {};
     form.querySelectorAll('input, textarea, select').forEach(el => {
-      if (el.id && el.value) {
-        data[el.id] = el.value;
+      if (el.id) {
+        data[el.id] = el.value || '';
       }
     });
     return data;
@@ -960,10 +978,19 @@
     const results = [];
     
     for (const [fieldId, value] of Object.entries(formData)) {
-      if (!value.trim()) continue;
-      
       const fieldInfo = getFieldInfo(fieldId);
       if (!fieldInfo) continue;
+
+      // Skip empty fields for now, but we can add validation for required fields later
+      if (!value || !value.trim()) {
+        results.push({
+          fieldId,
+          fieldName: fieldInfo.name,
+          status: 'success',
+          message: 'Alan boş - kontrol edilmedi'
+        });
+        continue;
+      }
 
       try {
         const result = await checkFieldWithAI(fieldId, value, fieldInfo, apiKey);

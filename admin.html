@@ -464,8 +464,13 @@
           if (response.ok) {
             showStatus('✅ API Key geçerli ve çalışıyor!', 'success');
             aiStatus.textContent = 'Aktif';
+            
+            // Save the working API key
+            localStorage.setItem('openai_api_key', apiKey);
+            loadCurrentApiKey();
           } else {
-            showStatus('❌ API Key geçersiz!', 'error');
+            const errorData = await response.json().catch(() => ({}));
+            showStatus(`❌ API Key geçersiz! Hata: ${response.status} ${response.statusText}${errorData.error ? ' - ' + errorData.error.message : ''}`, 'error');
             aiStatus.textContent = 'Hatalı';
           }
         } catch (error) {
