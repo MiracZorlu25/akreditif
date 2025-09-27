@@ -873,9 +873,10 @@
       apiKeyStatus.style.color = '#10b981';
       apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
     } else {
-      apiKeyStatus.textContent = '❌ API Key kaydedilmemiş';
-      apiKeyStatus.style.color = '#ef4444';
-      apiKeyDisplay.textContent = 'Kaydedilmemiş';
+      // Use default API key from config
+      apiKeyStatus.textContent = '✓ Varsayılan API Key kullanılıyor';
+      apiKeyStatus.style.color = '#10b981';
+      apiKeyDisplay.textContent = CONFIG.DEFAULT_OPENAI_API_KEY.substring(0, 20) + '... (Varsayılan)';
     }
   }
 
@@ -887,9 +888,9 @@
   aiCheckBtn?.addEventListener('click', performAICheck);
 
   async function performAICheck() {
-    const apiKey = localStorage.getItem('openai_api_key');
+    const apiKey = localStorage.getItem('openai_api_key') || CONFIG.DEFAULT_OPENAI_API_KEY;
     if (!apiKey) {
-      alert('Önce Admin Panel\'den API Key\'inizi kaydedin!');
+      alert('API Key bulunamadı!');
       return;
     }
 
@@ -1069,7 +1070,7 @@ Sadece JSON formatında yanıt ver:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: CONFIG.OPENAI_MODEL,
         messages: [
           {
             role: 'system',
@@ -1080,8 +1081,8 @@ Sadece JSON formatında yanıt ver:
             content: prompt
           }
         ],
-        max_tokens: 500,
-        temperature: 0.1
+        max_tokens: CONFIG.MAX_TOKENS,
+        temperature: CONFIG.TEMPERATURE
       })
     });
 

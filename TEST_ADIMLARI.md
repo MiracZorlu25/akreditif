@@ -8,7 +8,8 @@
 - [ ] Kullanıcı adı: `admin`, Şifre: `12345` ile giriş yap
 - [ ] ✅ "Giriş başarılı!" mesajını gör
 - [ ] Admin panelinin açıldığını kontrol et
-- [ ] OpenAI API Key'ini gir ve kaydet
+- [ ] Varsayılan API Key'in yüklendiğini kontrol et
+- [ ] Kendi OpenAI API Key'ini gir ve kaydet
 - [ ] "API Key Test Et" butonuna bas
 - [ ] ✅ Başarılı mesajını gör
 - [ ] "Ayarları Dışa Aktar" butonuna bas
@@ -42,11 +43,14 @@
 - [ ] Aynı alanın güncellendiğini kontrol et
 
 ### 5. **AI Kontrol Testi**
-- [ ] Admin panelden API Key'in kaydedildiğini kontrol et
+- [ ] Varsayılan API Key ile AI kontrol yap
 - [ ] Başvuru formunda "AI Kontrol" butonuna bas
 - [ ] AI sonuçlarının görüntülendiğini kontrol et
 - [ ] MT700 formunda "AI Kontrol" butonuna bas
 - [ ] AI sonuçlarının görüntülendiğini kontrol et
+- [ ] Admin panelden kendi API Key'ini kaydet
+- [ ] Kendi API Key'i ile AI kontrol yap
+- [ ] Sonuçların farklı olduğunu kontrol et
 
 ### 6. **Veri Kalıcılığı Testi**
 - [ ] Formu doldur
@@ -211,6 +215,22 @@
 **Kullanıcı Adı:** `admin`  
 **Şifre:** `12345`
 
-**Not:** Bu bilgiler sadece test amaçlıdır. Gerçek kullanımda güvenli şifreler kullanılmalıdır.
+## 🔑 API Key Yönetimi
+
+### **Varsayılan API Key**
+- Sistem varsayılan olarak sabit bir API Key kullanır
+- Bu sayede API Key'i olmayan kullanıcılar da AI kontrollerini kullanabilir
+- Varsayılan API Key `config.js` dosyasında tanımlanmıştır
+
+### **Kendi API Key'inizi Kullanma**
+1. Admin Panel'e giriş yapın (admin/12345)
+2. "OpenAI API Key" alanına kendi API Key'inizi girin
+3. "API Key Kaydet" butonuna basın
+4. Artık kendi API Key'iniz kullanılacak
+
+### **Güvenlik Notları**
+- `config.js` dosyası `.gitignore`'a eklenmiştir
+- Bu sayede API Key'ler GitHub'a push edilmez
+- Gerçek kullanımda güvenli şifreler kullanılmalıdır
 
 Bu test adımlarını takip ederek sistemin tüm fonksiyonlarını kapsamlı şekilde test edebilirsiniz.
