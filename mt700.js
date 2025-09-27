@@ -7,6 +7,47 @@
   form.addEventListener('input', (e)=>{
     if (!(e.target instanceof HTMLElement)) return;
     persistToStorage();
+    // Real-time sync to main form
+    syncToMainForm(e.target.id, e.target.value);
+  });
+
+  // Real-time sync function to main form
+  function syncToMainForm(mt700FieldId, value) {
+    // Mapping from MT700 fields to main form fields
+    const syncMap = {
+      'mt27': 'f27', 'mt40A': 'f40A', 'mt20': 'f20', 'mt23': 'f23', 'mt31C': 'f31C', 'mt40E': 'f40E',
+      'mt31D': 'f31D', 'mt51a': 'f51a', 'mt50': 'f50', 'mt59': 'f59', 'mt32B': 'f32B_amt',
+      'mt39A': 'f39A', 'mt39B': 'f39B', 'mt39C': 'f39C', 'mt41a': 'f41a_bank', 'mt42C': 'f42C',
+      'mt42a': 'f42a_drawee', 'mt42M': 'f42M', 'mt42P': 'f42P', 'mt43P': 'f43P', 'mt43T': 'f43T',
+      'mt44A': 'f44A', 'mt44E': 'f44E', 'mt44F': 'f44F', 'mt44B': 'f44B', 'mt44C': 'f44C', 'mt44D': 'f44D',
+      'mt45A': 'f45A', 'mt46A': 'f46A', 'mt47A': 'f47A', 'mt49G': 'f49G', 'mt49H': 'f49H',
+      'mt71D': 'f71D', 'mt48': 'f48', 'mt49': 'f49', 'mt58a': 'f58a', 'mt57a': 'f57a'
+    };
+    
+    const mainFieldId = syncMap[mt700FieldId];
+    if (mainFieldId) {
+      // Save to localStorage for main form to pick up
+      localStorage.setItem(mainFieldId, value);
+      
+      // If main form page is open in another tab, sync immediately
+      if (window.opener || window.parent !== window) {
+        const message = { type: 'sync', fieldId: mainFieldId, value: value };
+        if (window.opener) window.opener.postMessage(message, '*');
+        if (window.parent !== window) window.parent.postMessage(message, '*');
+      }
+    }
+  }
+
+  // Listen for sync messages from other pages
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'sync') {
+      const field = document.getElementById(event.data.fieldId);
+      if (field && field.value !== event.data.value) {
+        field.value = event.data.value;
+        // Also save to localStorage
+        localStorage.setItem(event.data.fieldId, event.data.value);
+      }
+    }
   });
 
   // Demo fill: pull from storage; if empty, set defaults similar to main demo
@@ -17,13 +58,15 @@
       f59:'XYZ EXPORT LLC, 456 Business Ave, City, Country', f32B_ccy:'USD', f32B_amt:'100000.00', f39A:'10/10', f39B:'110000',
       f39C:'FREIGHT, INSURANCE', f41a_bank:'NOMINATED BANK XYZ', f41a_role:'BY MIX PAYMENT', f42C:'60 DAYS FROM B/L DATE',
       f42a_drawee:'NOMINATED BANK XYZ', f42M:'%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE', f42P:'60 DAYS FROM B/L DATE',
-      f43P:'ALLOWED', f43T:'NOT ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'251015', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
+      f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'251015', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
       f45A:'ELECTRONICS, 1000 PCS, FOB ISTANBUL', f46A:'SIGNED COMMERCIAL INVOICE ...', f47A:'ALL DOCUMENTS MUST STATE L/C NUMBER',
       f49G:'POST FINANCING AVAILABLE', f49H:'BANK DISCOUNT TERMS APPLY', f71D:'ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY', f48:'21', f49:'MAY ADD',
       f58a:'CONFIRMING BANK ABC', f53a:'REIMBURSING BANK XYZ', f78:'FOLLOW STANDARD INSTRUCTIONS', f57a:'SECOND ADVISING BANK DEF', f72Z:'N/A'
     };
     // write both to storage and to visible mt700 fields
     Object.entries(demo).forEach(([k,v])=>localStorage.setItem(k,String(v)));
+    // Mark that user has used the form
+    localStorage.setItem('userHasUsedForm', 'true');
     // map to mt700 inputs where id starts with mt and sync keys exist
     const map = {
       mt27:'f27', mt40A:'f40A', mt20:'f20', mt23:'f23', mt31C:'f31C', mt40E:'f40E', mt31D:'f31D', mt51a:'f51a', mt50:'f50', mt59:'f59', mt32B:'f32B_amt',
@@ -33,7 +76,11 @@
     };
     Object.entries(map).forEach(([mtId, key])=>{
       const el = document.getElementById(mtId);
-      if (el) el.value = localStorage.getItem(key) || '';
+      if (el) {
+        el.value = localStorage.getItem(key) || '';
+        // Sync to main form
+        syncToMainForm(mtId, el.value);
+      }
     });
   });
 
@@ -46,6 +93,8 @@
   document.querySelector('button[type="reset"]').addEventListener('click', ()=>{
     setTimeout(()=>{
       form.reset();
+      // Clear localStorage to start fresh
+      localStorage.clear();
     }, 10);
   });
 
@@ -172,6 +221,36 @@
     if (isNaN(num)) return s;
     return num.toFixed(2);
   }
+
+  // Load saved data on page load - ONLY if user has previously entered data
+  function loadFormData() {
+    if (!form) return;
+    
+    // Check if user has ever used the form (has any saved data)
+    const hasUserData = localStorage.getItem('userHasUsedForm');
+    if (!hasUserData) {
+      // First time user - don't load anything, keep form empty
+      return;
+    }
+    
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      const savedValue = localStorage.getItem(el.id);
+      if (savedValue !== null) {
+        el.value = savedValue;
+      }
+    });
+  }
+
+  // Load data when page loads
+  document.addEventListener('DOMContentLoaded', loadFormData);
+
+  // Debug function to test sync
+  window.testSyncMT700 = function() {
+    console.log('Testing MT700 sync...');
+    document.getElementById('mt59').value = 'TEST SYNC MT700 - ' + new Date().toLocaleTimeString();
+    syncToMainForm('mt59', document.getElementById('mt59').value);
+    console.log('Sync sent to main form');
+  };
 })();
 
 

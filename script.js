@@ -266,10 +266,29 @@
     }
     if (info.bottom>1){
       sec27.classList.remove('hidden');
+      // Check if we have the correct number of attachments
+      const currentCount = attachmentsList.children.length;
+      const requiredCount = info.bottom - 1;
+      
+      if (currentCount < requiredCount) {
+        // Show add button if we need more attachments
+        addAttachmentBtn.style.display = 'block';
+      } else if (currentCount > requiredCount) {
+        // Remove excess attachments
+        while (attachmentsList.children.length > requiredCount) {
+          attachmentsList.lastChild.remove();
+        }
+        serializeAttachments();
+        addAttachmentBtn.style.display = 'none';
+      } else {
+        // Exact count - hide add button
+        addAttachmentBtn.style.display = 'none';
+      }
     } else {
       sec27.classList.add('hidden');
       attachmentsList.innerHTML='';
       f27_list.value='';
+      addAttachmentBtn.style.display = 'block';
     }
   }
 
@@ -277,6 +296,17 @@
     const rel = attRelated.value;
     const title = attTitle.value.trim();
     if (!title) return;
+    
+    // Check if we can add more attachments
+    const info = parse27(f27.value);
+    if (info && info.bottom > 1) {
+      const currentCount = attachmentsList.children.length;
+      const requiredCount = info.bottom - 1;
+      if (currentCount >= requiredCount) {
+        return; // Don't add more than required
+      }
+    }
+    
     const row = document.createElement('div');
     row.className='attachment';
     const rowId = cryptoRandomId();
@@ -287,12 +317,16 @@
     row.querySelector('button').addEventListener('click',()=>{ 
       row.remove(); 
       attachmentRows = attachmentRows.filter(x=>x.id!==rowId);
-      serializeAttachments(); 
+      serializeAttachments();
+      toggle27(); // Re-check if we need to show add button
     });
     attachmentsList.appendChild(row);
     attachmentRows.push({id: rowId, rel, title});
     attTitle.value='';
     serializeAttachments();
+    
+    // Check if we need to hide the add button after adding
+    toggle27();
   }
 
   function serializeAttachments(){
@@ -446,6 +480,15 @@
       const total = items.reduce((a,b)=>a+(b||0),0);
       if (total === 100) return false;
     }
+    // Don't validate 27 attachment input fields when add button is hidden
+    if (el.id === 'attRelated' || el.id === 'attTitle'){
+      const info = parse27(f27.value);
+      if (info && info.bottom > 1) {
+        const currentCount = attachmentsList.children.length;
+        const requiredCount = info.bottom - 1;
+        if (currentCount >= requiredCount) return false;
+      }
+    }
     return true;
   }
 
@@ -461,7 +504,52 @@
   mainForm?.addEventListener('input', (e)=>{
     if (!(e.target instanceof HTMLElement)) return;
     const id = e.target.id;
-    if (id) localStorage.setItem(id, (e.target.value||'').toString());
+    if (id) {
+      localStorage.setItem(id, (e.target.value||'').toString());
+      // Mark that user has used the form
+      localStorage.setItem('userHasUsedForm', 'true');
+      // Real-time sync to MT700 form
+      syncToMT700(id, e.target.value);
+    }
+  });
+
+  // Real-time sync function to MT700 form
+  function syncToMT700(fieldId, value) {
+    // Mapping from main form fields to MT700 fields
+    const syncMap = {
+      'f27': 'mt27', 'f40A': 'mt40A', 'f20': 'mt20', 'f23': 'mt23', 'f31C': 'mt31C', 'f40E': 'mt40E',
+      'f31D': 'mt31D', 'f51a': 'mt51a', 'f50': 'mt50', 'f59': 'mt59', 'f32B_amt': 'mt32B',
+      'f39A': 'mt39A', 'f39B': 'mt39B', 'f39C': 'mt39C', 'f41a_bank': 'mt41a', 'f42C': 'mt42C',
+      'f42a_drawee': 'mt42a', 'f42M': 'mt42M', 'f42P': 'mt42P', 'f43P': 'mt43P', 'f43T': 'mt43T',
+      'f44A': 'mt44A', 'f44E': 'mt44E', 'f44F': 'mt44F', 'f44B': 'mt44B', 'f44C': 'mt44C', 'f44D': 'mt44D',
+      'f45A': 'mt45A', 'f46A': 'mt46A', 'f47A': 'mt47A', 'f49G': 'mt49G', 'f49H': 'mt49H',
+      'f71D': 'mt71D', 'f48': 'mt48', 'f49': 'mt49', 'f58a': 'mt58a', 'f57a': 'mt57a'
+    };
+    
+    const mt700FieldId = syncMap[fieldId];
+    if (mt700FieldId) {
+      // Save to localStorage for MT700 form to pick up
+      localStorage.setItem(mt700FieldId, value);
+      
+      // If MT700 page is open in another tab, sync immediately
+      if (window.opener || window.parent !== window) {
+        const message = { type: 'sync', fieldId: mt700FieldId, value: value };
+        if (window.opener) window.opener.postMessage(message, '*');
+        if (window.parent !== window) window.parent.postMessage(message, '*');
+      }
+    }
+  }
+
+  // Listen for sync messages from MT700 page
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'sync') {
+      const field = document.getElementById(event.data.fieldId);
+      if (field && field.value !== event.data.value) {
+        field.value = event.data.value;
+        // Also save to localStorage
+        localStorage.setItem(event.data.fieldId, event.data.value);
+      }
+    }
   });
 
   // Reset button handler
@@ -472,6 +560,8 @@
       attachmentsList.innerHTML = '';
       f27_list.value = '';
       clearFieldErrors();
+      // Clear localStorage to start fresh
+      localStorage.clear();
     }, 10);
   });
 
@@ -523,6 +613,7 @@
     document.getElementById('f42P').value = '60 DAYS FROM BILL OF LADING DATE';
     document.getElementById('f23').value = 'REF123456';
     document.getElementById('f43P').value = 'İzin var';
+    document.getElementById('f43T').value = 'İzin var';
     document.getElementById('f44A').value = 'ISTANBUL';
     document.getElementById('f44E').value = 'MERSİN';
     document.getElementById('f44F').value = 'HAMBURG';
@@ -540,9 +631,13 @@
     document.getElementById('f58a').value = 'CONFIRMING BANK ABC';
     document.getElementById('f57a').value = 'SECOND ADVISING BANK DEF';
 
-    // push to storage for MT700
+    // Sync all fields to MT700 after demo data is loaded
     Array.from(document.querySelectorAll('#lcForm [id]')).forEach(el=>{
-      const id = el.id; if (!id) return; localStorage.setItem(id, (el.value||'').toString());
+      const id = el.id; 
+      if (id) {
+        localStorage.setItem(id, (el.value||'').toString());
+        syncToMT700(id, el.value);
+      }
     });
   }
 
@@ -639,6 +734,69 @@
     document.querySelectorAll('.error-msg').forEach(n=>n.remove());
     document.querySelectorAll('.invalid').forEach(n=>n.classList.remove('invalid'));
   }
+
+  // Load saved data on page load - ONLY if user has previously entered data
+  function loadFormData() {
+    const form = document.getElementById('lcForm');
+    if (!form) return;
+    
+    // Check if user has ever used the form (has any saved data)
+    const hasUserData = localStorage.getItem('userHasUsedForm');
+    if (!hasUserData) {
+      // First time user - don't load anything, keep form empty
+      return;
+    }
+    
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      const savedValue = localStorage.getItem(el.id);
+      if (savedValue !== null) {
+        el.value = savedValue;
+      }
+    });
+    
+    // Load 27 attachments if any
+    const savedAttachments = localStorage.getItem('f27_list');
+    if (savedAttachments) {
+      f27_list.value = savedAttachments;
+      // Parse and recreate attachment rows
+      try {
+        const attachments = JSON.parse(savedAttachments);
+        attachments.forEach(att => {
+          attRelated.value = att.related;
+          attTitle.value = att.title;
+          addAttachment();
+        });
+      } catch (e) {
+        console.warn('Could not parse saved attachments');
+      }
+    }
+    
+    // Load 42M mix rows if any
+    const savedMix = localStorage.getItem('f42M');
+    if (savedMix) {
+      try {
+        const mixData = JSON.parse(savedMix);
+        mixData.forEach(mix => {
+          mixPercent.value = mix.percent;
+          mixType.value = mix.type;
+          addMixRow();
+        });
+      } catch (e) {
+        console.warn('Could not parse saved mix data');
+      }
+    }
+  }
+
+  // Load data when page loads
+  document.addEventListener('DOMContentLoaded', loadFormData);
+
+  // Debug function to test sync
+  window.testSync = function() {
+    console.log('Testing sync...');
+    document.getElementById('f50').value = 'TEST SYNC - ' + new Date().toLocaleTimeString();
+    syncToMT700('f50', document.getElementById('f50').value);
+    console.log('Sync sent to MT700');
+  };
 })();
 
 
