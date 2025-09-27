@@ -100,4 +100,42 @@ input.invalid, textarea.invalid, select.invalid{border-color:var(--danger);outli
   color: #92400e;
 }
 
+/* Top Navigation */
+.topnav {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.topnav a {
+  color: #64748b;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.topnav a:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.topnav a.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.topnav a.admin-link {
+  background: #dc2626;
+  color: white;
+  font-weight: bold;
+}
+
+.topnav a.admin-link:hover {
+  background: #b91c1c;
+  color: white;
+}
+
 

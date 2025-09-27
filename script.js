@@ -1005,13 +1005,32 @@
   }
 
   async function checkFieldWithAI(fieldId, value, fieldInfo, apiKey) {
-    const prompt = `Akreditif başvuru formu alanı kontrolü yapıyorum. Sen bir akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
+    // Load custom field rules
+    const fieldRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+    const customRule = fieldRules[fieldId];
+    
+    let prompt = `Akreditif başvuru formu alanı kontrolü yapıyorum. Sen bir akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
 
 Alan: ${fieldInfo.name} (${fieldId})
 Değer: "${value}"
-Alan Tipi: ${fieldInfo.type}
+Alan Tipi: ${fieldInfo.type}`;
 
-Bu alan için aşağıdaki kontrolleri yap:
+    if (customRule) {
+      prompt += `
+
+ÖZEL KURAL (Admin tarafından tanımlanmış):
+${customRule.rule}
+
+Örnek Değerler: ${customRule.examples || 'Yok'}
+
+Bu özel kurala göre analiz yap ve aşağıdaki kontrolleri uygula:`;
+    } else {
+      prompt += `
+
+Bu alan için aşağıdaki kontrolleri yap:`;
+    }
+
+    prompt += `
 1. Format doğruluğu (tarih, para birimi, SWIFT kodu vb.)
 2. İçerik tutarlılığı ve doğruluğu
 3. Eksik bilgi kontrolü
@@ -1025,7 +1044,10 @@ Bu alan için aşağıdaki kontrolleri yap:
 - SWIFT kodları doğru formatta mı?
 - Adres bilgileri eksiksiz mi?
 - Banka bilgileri doğru mu?
-- Tutarlar mantıklı mı?
+- Tutarlar mantıklı mı?`;
+
+    if (!customRule) {
+      prompt += `
 
 Her alan için örnek doğru kullanım:
 - 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek)
@@ -1063,7 +1085,10 @@ Her alan için örnek doğru kullanım:
 - 48: "21" (ibraz süresi gün)
 - 49: "WITHOUT" veya "CONFIRM" veya "MAY ADD" (teyit talimatı)
 - 58a: "CONFIRMING BANK ABC" (teyit bankası)
-- 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)
+- 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)`;
+    }
+
+    prompt += `
 
 Sadece JSON formatında yanıt ver:
 {

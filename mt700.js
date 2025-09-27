@@ -418,13 +418,32 @@
   }
 
   async function checkMT700FieldWithAI(fieldId, value, fieldInfo, apiKey) {
-    const prompt = `MT700 akreditif formu alanı kontrolü yapıyorum. Sen bir SWIFT MT700 akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
+    // Load custom field rules
+    const fieldRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+    const customRule = fieldRules[fieldId];
+    
+    let prompt = `MT700 akreditif formu alanı kontrolü yapıyorum. Sen bir SWIFT MT700 akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
 
 Alan: ${fieldInfo.name} (${fieldId})
 Değer: "${value}"
-Alan Tipi: ${fieldInfo.type}
+Alan Tipi: ${fieldInfo.type}`;
 
-Bu MT700 alanı için aşağıdaki kontrolleri yap:
+    if (customRule) {
+      prompt += `
+
+ÖZEL KURAL (Admin tarafından tanımlanmış):
+${customRule.rule}
+
+Örnek Değerler: ${customRule.examples || 'Yok'}
+
+Bu özel kurala göre analiz yap ve aşağıdaki kontrolleri uygula:`;
+    } else {
+      prompt += `
+
+Bu MT700 alanı için aşağıdaki kontrolleri yap:`;
+    }
+
+    prompt += `
 1. SWIFT MT700 formatına uygunluk
 2. Alan içeriği doğruluğu ve tutarlılığı
 3. Uluslararası standartlara uygunluk
@@ -440,7 +459,10 @@ Bu MT700 alanı için aşağıdaki kontrolleri yap:
 - Banka bilgileri doğru mu?
 - Adres bilgileri eksiksiz mi?
 - Tutarlar mantıklı mı?
-- Uluslararası akreditif kurallarına uygunluk
+- Uluslararası akreditif kurallarına uygunluk`;
+
+    if (!customRule) {
+      prompt += `
 
 Her MT700 alanı için örnek doğru kullanım:
 - 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek)
@@ -482,7 +504,10 @@ Her MT700 alanı için örnek doğru kullanım:
 - 53a: "REIMBURSING BANK XYZ" (ödeme bankası)
 - 78: "FOLLOW STANDARD INSTRUCTIONS" (ödeme talimatları)
 - 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)
-- 72Z: "N/A" (serbest mesaj)
+- 72Z: "N/A" (serbest mesaj)`;
+    }
+
+    prompt += `
 
 Sadece JSON formatında yanıt ver:
 {

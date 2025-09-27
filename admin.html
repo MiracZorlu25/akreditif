@@ -116,7 +116,7 @@
       <div class="nav-links">
         <a href="index.html">Başvuru Formu</a>
         <a href="mt700.html">MT700 Formu</a>
-        <a href="admin.html">Admin Panel</a>
+        <a href="admin.html" class="active">Admin Panel</a>
       </div>
 
     <div class="admin-section">
@@ -157,6 +157,126 @@
           <div>Son AI Kontrol: <span id="lastAiCheck">-</span></div>
           <div>Toplam Form Doldurma: <span id="totalForms">-</span></div>
           <div>Son PDF Export: <span id="lastPdfExport">-</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📋 AI Alan Kuralları Yönetimi</h3>
+      <div class="form-group">
+        <label>Form Alanı Seçin:</label>
+        <select id="fieldSelector" style="width: 100%; padding: 10px; background: #0e1727; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0;">
+          <option value="">Alan seçin...</option>
+          <optgroup label="Başvuru Formu Alanları">
+            <option value="f27">27 - Teklif ve ekleri</option>
+            <option value="f40A">40A - Akreditifin Formu</option>
+            <option value="f20">20 - Akreditif numarası</option>
+            <option value="f31C">31C - Düzenlenme tarihi</option>
+            <option value="f40E">40E - Uygulanacak kurallar</option>
+            <option value="f31D">31D - Akreditifin vadesi</option>
+            <option value="f51a">51a - Amir/Alıcının bankası</option>
+            <option value="f50">50 - Amir/Alıcı</option>
+            <option value="f59">59 - Lehtar/Satıcı</option>
+            <option value="f32B_ccy">32B - Para Cinsi</option>
+            <option value="f32B_amt">32B - Tutar</option>
+            <option value="f39A">39A - Tolerans</option>
+            <option value="f39B">39B - Maksimum Tutar</option>
+            <option value="f39C">39C - İlave Dahili Tutarlar</option>
+            <option value="f41a_bank">41a - Banka</option>
+            <option value="f41a_role">41a - Görev</option>
+            <option value="f42C">42C - Poliçe vadesi</option>
+            <option value="f42a_drawee">42a - Drawee</option>
+            <option value="f42M">42M - Karışık Ödeme Detayları</option>
+            <option value="f42P">42P - İştira/Vadeli Akreditif Detayları</option>
+            <option value="f43P">43P - Kısmi Yüklemeler</option>
+            <option value="f43T">43T - Aktarma</option>
+            <option value="f44A">44A - Malı Teslim Alma Yeri</option>
+            <option value="f44E">44E - Yükleme Limanı</option>
+            <option value="f44F">44F - Boşaltma Limanı</option>
+            <option value="f44B">44B - Teslim Etme Yeri</option>
+            <option value="f44C">44C - Son Yükleme Tarihi</option>
+            <option value="f44D">44D - Yükleme Süresi</option>
+            <option value="f45A">45A - Mal ve Hizmetlerin Tanımı</option>
+            <option value="f46A">46A - Gerekli Belgeler</option>
+            <option value="f47A">47A - İlave Şartlar</option>
+            <option value="f49G">49G - Lehtar için Özel Ödeme</option>
+            <option value="f49H">49H - Alan Banka için Özel Ödeme</option>
+            <option value="f71D">71D - Masraflar</option>
+            <option value="f48">48 - İbraz süresi</option>
+            <option value="f49">49 - Teyit Talimatı</option>
+            <option value="f58a">58a - Teyit Talep Edilen Taraf</option>
+            <option value="f57a">57a - İkinci İhbar Bankası</option>
+          </optgroup>
+          <optgroup label="MT700 Formu Alanları">
+            <option value="mt27">mt27 - Toplam Dizisi</option>
+            <option value="mt40A">mt40A - Akreditifin Formu</option>
+            <option value="mt20">mt20 - Akreditif Numarası</option>
+            <option value="mt23">mt23 - Ön İhbar Referansı</option>
+            <option value="mt31C">mt31C - Düzenlenme Tarihi</option>
+            <option value="mt40E">mt40E - Uygulanacak Kurallar</option>
+            <option value="mt31D">mt31D - Vade ve Yer</option>
+            <option value="mt51a">mt51a - Amir Banka</option>
+            <option value="mt50">mt50 - Amir</option>
+            <option value="mt59">mt59 - Lehtar</option>
+            <option value="mt32B_ccy">mt32B - Para Cinsi</option>
+            <option value="mt32B_amt">mt32B - Tutar</option>
+            <option value="mt39A">mt39A - Tolerans</option>
+            <option value="mt39B">mt39B - Maksimum Tutar</option>
+            <option value="mt39C">mt39C - İlave Tutarlar</option>
+            <option value="mt41a_bank">mt41a - Banka</option>
+            <option value="mt41a_role">mt41a - Görev</option>
+            <option value="mt42C">mt42C - Poliçe Vadesi</option>
+            <option value="mt42a">mt42a - Drawee</option>
+            <option value="mt42M">mt42M - Karışık Ödeme</option>
+            <option value="mt42P">mt42P - Vadeli Detay</option>
+            <option value="mt43P">mt43P - Kısmi Yükleme</option>
+            <option value="mt43T">mt43T - Aktarma</option>
+            <option value="mt44A">mt44A - Teslim Alma Yeri</option>
+            <option value="mt44E">mt44E - Yükleme Limanı</option>
+            <option value="mt44F">mt44F - Boşaltma Limanı</option>
+            <option value="mt44B">mt44B - Teslim Yeri</option>
+            <option value="mt44C">mt44C - Son Yükleme Tarihi</option>
+            <option value="mt44D">mt44D - Yükleme Periyodu</option>
+            <option value="mt45A">mt45A - Mal Tanımı</option>
+            <option value="mt46A">mt46A - Belgeler</option>
+            <option value="mt47A">mt47A - İlave Şartlar</option>
+            <option value="mt49G">mt49G - Lehtar Özel Ödeme</option>
+            <option value="mt49H">mt49H - Banka Özel Ödeme</option>
+            <option value="mt71D">mt71D - Masraflar</option>
+            <option value="mt48">mt48 - İbraz Süresi</option>
+            <option value="mt49">mt49 - Teyit Talimatı</option>
+            <option value="mt58a">mt58a - Teyit Bankası</option>
+            <option value="mt53a">mt53a - Ödeme Bankası</option>
+            <option value="mt78">mt78 - Ödeme Talimatları</option>
+            <option value="mt57a">mt57a - İkinci İhbar Bankası</option>
+            <option value="mt72Z">mt72Z - Serbest Mesaj</option>
+          </optgroup>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="fieldRule">Alan Kuralı:</label>
+        <textarea id="fieldRule" rows="4" placeholder="Bu alan için AI direktifini yazın..." style="width: 100%; padding: 10px; background: #0e1727; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0;"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="fieldExamples">Örnek Değerler (virgülle ayırın):</label>
+        <input type="text" id="fieldExamples" placeholder="Örnek1, Örnek2, Örnek3" style="width: 100%; padding: 10px; background: #0e1727; border: 1px solid #334155; border-radius: 6px; color: #e2e8f0;">
+      </div>
+      
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+        <button id="saveFieldRule" style="background: #059669; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Kaydet</button>
+        <button id="loadFieldRule" style="background: #0ea5e9; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Yükle</button>
+        <button id="deleteFieldRule" style="background: #dc2626; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Sil</button>
+        <button id="testFieldRule" style="background: #7c3aed; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Kural Test Et</button>
+      </div>
+      
+      <div id="fieldRuleStatus" class="status-message" style="display: none; margin-top: 10px;"></div>
+      
+      <div id="fieldRulesList" style="margin-top: 20px;">
+        <h4>Kayıtlı Alan Kuralları:</h4>
+        <div id="rulesList" style="background: #1e293b; padding: 15px; border-radius: 6px; max-height: 300px; overflow-y: auto;">
+          <div style="color: #94a3b8; font-style: italic;">Henüz kural eklenmemiş</div>
         </div>
       </div>
     </div>
@@ -431,6 +551,202 @@
         totalForms.textContent = totalFormsCount;
         lastPdfExport.textContent = lastPdfExportTime ? new Date(lastPdfExportTime).toLocaleString('tr-TR') : '-';
       }
+
+      // Field Rules Management
+      const fieldSelector = document.getElementById('fieldSelector');
+      const fieldRule = document.getElementById('fieldRule');
+      const fieldExamples = document.getElementById('fieldExamples');
+      const saveFieldRuleBtn = document.getElementById('saveFieldRule');
+      const loadFieldRuleBtn = document.getElementById('loadFieldRule');
+      const deleteFieldRuleBtn = document.getElementById('deleteFieldRule');
+      const testFieldRuleBtn = document.getElementById('testFieldRule');
+      const fieldRuleStatus = document.getElementById('fieldRuleStatus');
+      const rulesList = document.getElementById('rulesList');
+
+      // Load field rules from localStorage
+      function loadFieldRules() {
+        const rules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+        displayFieldRules(rules);
+      }
+
+      // Display field rules
+      function displayFieldRules(rules) {
+        const rulesArray = Object.entries(rules);
+        if (rulesArray.length === 0) {
+          rulesList.innerHTML = '<div style="color: #94a3b8; font-style: italic;">Henüz kural eklenmemiş</div>';
+          return;
+        }
+
+        rulesList.innerHTML = rulesArray.map(([fieldId, rule]) => `
+          <div style="background: #0e1727; padding: 10px; margin: 5px 0; border-radius: 6px; border-left: 4px solid #059669;">
+            <div style="font-weight: bold; color: #e2e8f0;">${fieldId}</div>
+            <div style="color: #94a3b8; font-size: 12px; margin: 5px 0;">${rule.rule.substring(0, 100)}${rule.rule.length > 100 ? '...' : ''}</div>
+            <div style="color: #64748b; font-size: 11px;">Örnekler: ${rule.examples || 'Yok'}</div>
+            <button onclick="editFieldRule('${fieldId}')" style="background: #0ea5e9; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 5px;">Düzenle</button>
+          </div>
+        `).join('');
+      }
+
+      // Save field rule
+      saveFieldRuleBtn.addEventListener('click', function() {
+        const fieldId = fieldSelector.value;
+        const rule = fieldRule.value.trim();
+        const examples = fieldExamples.value.trim();
+
+        if (!fieldId || !rule) {
+          showFieldRuleStatus('Alan ve kural seçin!', 'error');
+          return;
+        }
+
+        const rules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+        rules[fieldId] = {
+          rule: rule,
+          examples: examples,
+          createdAt: new Date().toISOString()
+        };
+
+        localStorage.setItem('field_rules', JSON.stringify(rules));
+        showFieldRuleStatus('✅ Kural kaydedildi!', 'success');
+        loadFieldRules();
+        clearFieldRuleForm();
+      });
+
+      // Load field rule
+      loadFieldRuleBtn.addEventListener('click', function() {
+        const fieldId = fieldSelector.value;
+        if (!fieldId) {
+          showFieldRuleStatus('Alan seçin!', 'error');
+          return;
+        }
+
+        const rules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+        const rule = rules[fieldId];
+        
+        if (rule) {
+          fieldRule.value = rule.rule;
+          fieldExamples.value = rule.examples || '';
+          showFieldRuleStatus('✅ Kural yüklendi!', 'success');
+        } else {
+          showFieldRuleStatus('Bu alan için kural bulunamadı!', 'error');
+        }
+      });
+
+      // Delete field rule
+      deleteFieldRuleBtn.addEventListener('click', function() {
+        const fieldId = fieldSelector.value;
+        if (!fieldId) {
+          showFieldRuleStatus('Alan seçin!', 'error');
+          return;
+        }
+
+        if (confirm('Bu kuralı silmek istediğinizden emin misiniz?')) {
+          const rules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+          delete rules[fieldId];
+          localStorage.setItem('field_rules', JSON.stringify(rules));
+          showFieldRuleStatus('✅ Kural silindi!', 'success');
+          loadFieldRules();
+          clearFieldRuleForm();
+        }
+      });
+
+      // Test field rule
+      testFieldRuleBtn.addEventListener('click', function() {
+        const fieldId = fieldSelector.value;
+        const rule = fieldRule.value.trim();
+        const examples = fieldExamples.value.trim();
+
+        if (!fieldId || !rule) {
+          showFieldRuleStatus('Alan ve kural seçin!', 'error');
+          return;
+        }
+
+        // Test the rule with AI
+        testFieldRuleWithAI(fieldId, rule, examples);
+      });
+
+      // Test field rule with AI
+      async function testFieldRuleWithAI(fieldId, rule, examples) {
+        const apiKey = localStorage.getItem('openai_api_key') || CONFIG.DEFAULT_OPENAI_API_KEY;
+        if (!apiKey) {
+          showFieldRuleStatus('API Key bulunamadı!', 'error');
+          return;
+        }
+
+        showFieldRuleStatus('AI ile test ediliyor...', 'success');
+        
+        try {
+          const testValue = examples ? examples.split(',')[0].trim() : 'test değer';
+          const prompt = `Alan: ${fieldId}
+Kural: ${rule}
+Test Değeri: ${testValue}
+
+Bu kurala göre test değerini analiz et ve sonucu JSON formatında ver:
+{
+  "status": "success|warning|error",
+  "message": "Analiz sonucu",
+  "suggestions": ["öneri1", "öneri2"]
+}`;
+
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: CONFIG.OPENAI_MODEL,
+              messages: [
+                {
+                  role: 'system',
+                  content: 'Sen bir akreditif uzmanısın. Verilen kurallara göre alan değerlerini analiz edersin.'
+                },
+                {
+                  role: 'user',
+                  content: prompt
+                }
+              ],
+              max_tokens: CONFIG.MAX_TOKENS,
+              temperature: CONFIG.TEMPERATURE
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const result = JSON.parse(data.choices[0].message.content);
+            showFieldRuleStatus(`✅ Test başarılı! Sonuç: ${result.message}`, 'success');
+          } else {
+            showFieldRuleStatus('❌ Test başarısız!', 'error');
+          }
+        } catch (error) {
+          showFieldRuleStatus('❌ Test hatası: ' + error.message, 'error');
+        }
+      }
+
+      // Clear field rule form
+      function clearFieldRuleForm() {
+        fieldRule.value = '';
+        fieldExamples.value = '';
+      }
+
+      // Show field rule status
+      function showFieldRuleStatus(message, type) {
+        fieldRuleStatus.textContent = message;
+        fieldRuleStatus.className = `status-message status-${type}`;
+        fieldRuleStatus.style.display = 'block';
+        
+        setTimeout(() => {
+          fieldRuleStatus.style.display = 'none';
+        }, 3000);
+      }
+
+      // Edit field rule (global function)
+      window.editFieldRule = function(fieldId) {
+        fieldSelector.value = fieldId;
+        loadFieldRuleBtn.click();
+      };
+
+      // Initialize field rules
+      loadFieldRules();
 
       // Initialize
       checkLoginStatus();
