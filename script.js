@@ -1009,11 +1009,57 @@
     const fieldRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
     const customRule = fieldRules[fieldId];
     
+    // Special handling for field 27 (attachments)
+    let additionalInfo = '';
+    if (fieldId === 'f27') {
+      const attachmentsList = document.getElementById('attachmentsList');
+      const attachmentCount = attachmentsList ? attachmentsList.children.length : 0;
+      const f27Value = value;
+      
+      // Parse 1/N format
+      const match = f27Value.match(/^(\d+)\/(\d+)$/);
+      if (match) {
+        const currentPage = parseInt(match[1]);
+        const totalPages = parseInt(match[2]);
+        const requiredAttachments = totalPages - 1;
+        
+        additionalInfo = `
+
+ÖZEL BİLGİ (27 Alanı için):
+- Girilen değer: ${f27Value}
+- Mevcut sayfa: ${currentPage}
+- Toplam sayfa: ${totalPages}
+- Gerekli ek sayfa sayısı: ${requiredAttachments}
+- Yüklenen dosya sayısı: ${attachmentCount}
+- Dosya yükleme durumu: ${attachmentCount >= requiredAttachments ? 'TAMAM' : 'EKSİK'}`;
+      }
+    }
+    
+    // Special handling for location fields
+    if (fieldId === 'f44A' || fieldId === 'f44B') {
+      additionalInfo += `
+
+ÖZEL BİLGİ (Konum Alanları için):
+- Bu alanlar konum bilgisi içerir
+- Şehir ismi yeterli olabilir, detaylı adres zorunlu değil
+- Uluslararası standartlara uygun şehir/liman isimleri kabul edilir`;
+    }
+    
+    // Special handling for address fields
+    if (fieldId === 'f50' || fieldId === 'f59') {
+      additionalInfo += `
+
+ÖZEL BİLGİ (Adres Alanları için):
+- Bu alanlar şirket adı ve adres bilgisi içerir
+- SWIFT kodu zorunlu değil, şirket adı ve genel adres yeterli
+- Uluslararası standartlara uygun şirket adları kabul edilir`;
+    }
+    
     let prompt = `Akreditif başvuru formu alanı kontrolü yapıyorum. Sen bir akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
 
 Alan: ${fieldInfo.name} (${fieldId})
 Değer: "${value}"
-Alan Tipi: ${fieldInfo.type}`;
+Alan Tipi: ${fieldInfo.type}${additionalInfo}`;
 
     if (customRule) {
       prompt += `
@@ -1050,7 +1096,7 @@ Bu alan için aşağıdaki kontrolleri yap:`;
       prompt += `
 
 Her alan için örnek doğru kullanım:
-- 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek)
+- 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek) - ÖNEMLİ: 1/N formatında ise N-1 adet dosya yüklenmeli
 - 40A: "IRREVOCABLE" (geri alınamaz)
 - 20: "LC2025001" (akreditif numarası)
 - 31C: "2025-09-01" (tarih formatı)
@@ -1086,6 +1132,19 @@ Her alan için örnek doğru kullanım:
 - 49: "WITHOUT" veya "CONFIRM" veya "MAY ADD" (teyit talimatı)
 - 58a: "CONFIRMING BANK ABC" (teyit bankası)
 - 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)`;
+    }
+
+    // Special instructions for field 27
+    if (fieldId === 'f27') {
+      prompt += `
+
+ÖZEL TALİMAT (27 Alanı için):
+27 alanı 1/N formatında ise, N-1 adet dosya yüklenmiş olmalıdır.
+- Eğer "1/3" yazıldıysa → 2 adet dosya yüklenmeli
+- Eğer "1/2" yazıldıysa → 1 adet dosya yüklenmeli  
+- Eğer "1/1" yazıldıysa → 0 adet dosya yüklenmeli
+- Dosya sayısı yetersizse HATA ver
+- Dosya sayısı yeterliyse BAŞARILI ver`;
     }
 
     prompt += `
