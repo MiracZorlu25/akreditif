@@ -176,6 +176,13 @@
   <script>
     // Admin Panel JavaScript
     document.addEventListener('DOMContentLoaded', function() {
+      // Wait for CONFIG to be loaded
+      if (typeof CONFIG === 'undefined') {
+        console.error('CONFIG not loaded!');
+        alert('Konfigürasyon dosyası yüklenemedi. Sayfayı yenileyin.');
+        return;
+      }
+
       // Login elements
       const loginForm = document.getElementById('loginForm');
       const adminContent = document.getElementById('adminContent');
@@ -185,10 +192,10 @@
       const loginStatus = document.getElementById('loginStatus');
       const logoutBtn = document.getElementById('logoutBtn');
 
-      // Admin credentials (hardcoded for GitHub Pages)
+      // Admin credentials from config
       const ADMIN_CREDENTIALS = {
-        username: 'admin',
-        password: '12345'
+        username: CONFIG.ADMIN_USERNAME,
+        password: CONFIG.ADMIN_PASSWORD
       };
 
       // Check if user is already logged in
@@ -287,10 +294,14 @@
           adminApiKeyInput.value = savedApiKey;
           apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
         } else {
-          // Use default API key (hardcoded for GitHub Pages)
-          const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
-          adminApiKeyInput.value = defaultKey;
-          apiKeyDisplay.textContent = defaultKey.substring(0, 20) + '... (Varsayılan)';
+          // Use default API key from config
+          if (CONFIG && CONFIG.DEFAULT_OPENAI_API_KEY) {
+            adminApiKeyInput.value = CONFIG.DEFAULT_OPENAI_API_KEY;
+            apiKeyDisplay.textContent = CONFIG.DEFAULT_OPENAI_API_KEY.substring(0, 20) + '... (Varsayılan)';
+          } else {
+            adminApiKeyInput.value = '';
+            apiKeyDisplay.textContent = 'API Key yüklenemedi';
+          }
         }
       }
 

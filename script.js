@@ -873,11 +873,16 @@
       apiKeyStatus.style.color = '#10b981';
       apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
     } else {
-      // Use default API key (hardcoded for GitHub Pages)
-      const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
-      apiKeyStatus.textContent = '✓ Varsayılan API Key kullanılıyor';
-      apiKeyStatus.style.color = '#10b981';
-      apiKeyDisplay.textContent = defaultKey.substring(0, 20) + '... (Varsayılan)';
+      // Use default API key from config
+      if (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_OPENAI_API_KEY) {
+        apiKeyStatus.textContent = '✓ Varsayılan API Key kullanılıyor';
+        apiKeyStatus.style.color = '#10b981';
+        apiKeyDisplay.textContent = CONFIG.DEFAULT_OPENAI_API_KEY.substring(0, 20) + '... (Varsayılan)';
+      } else {
+        apiKeyStatus.textContent = '❌ API Key yüklenemedi';
+        apiKeyStatus.style.color = '#ef4444';
+        apiKeyDisplay.textContent = 'Yüklenemedi';
+      }
     }
   }
 
@@ -889,10 +894,12 @@
   aiCheckBtn?.addEventListener('click', performAICheck);
 
   async function performAICheck() {
-    const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
-    const apiKey = localStorage.getItem('openai_api_key') || defaultKey;
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    const defaultApiKey = (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_OPENAI_API_KEY) ? CONFIG.DEFAULT_OPENAI_API_KEY : null;
+    const apiKey = savedApiKey || defaultApiKey;
+    
     if (!apiKey) {
-      alert('API Key bulunamadı!');
+      alert('API Key bulunamadı! Lütfen Admin Panel\'den API Key\'inizi kaydedin.');
       return;
     }
 
@@ -1072,7 +1079,7 @@ Sadece JSON formatında yanıt ver:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: (typeof CONFIG !== 'undefined' && CONFIG.OPENAI_MODEL) ? CONFIG.OPENAI_MODEL : 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
@@ -1083,8 +1090,8 @@ Sadece JSON formatında yanıt ver:
             content: prompt
           }
         ],
-        max_tokens: 500,
-        temperature: 0.1
+        max_tokens: (typeof CONFIG !== 'undefined' && CONFIG.MAX_TOKENS) ? CONFIG.MAX_TOKENS : 500,
+        temperature: (typeof CONFIG !== 'undefined' && CONFIG.TEMPERATURE) ? CONFIG.TEMPERATURE : 0.1
       })
     });
 
