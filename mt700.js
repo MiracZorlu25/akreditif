@@ -53,12 +53,12 @@
   // Demo fill: pull from storage; if empty, set defaults similar to main demo
   document.getElementById('mtDemoBtn')?.addEventListener('click', ()=>{
     const demo = {
-      f27:'1/3', f40A:'IRREVOCABLE', f20:'LC2025001', f23:'REF123456', f31C:'250901', f40E:'UCP LATEST VERSION',
-      f31D:'251231', f51a:'ISBKTRISXXX', f50:'ABC IMPORT LTD., 123 Main St, City, Country',
+      f27:'1/3', f40A:'IRREVOCABLE', f20:'LC2025001', f23:'REF123456',       f31C:'2025-09-01', f40E:'UCP LATEST VERSION',
+      f31D:'2025-12-31', f51a:'ISBKTRISXXX', f50:'ABC IMPORT LTD., 123 Main St, City, Country',
       f59:'XYZ EXPORT LLC, 456 Business Ave, City, Country', f32B_ccy:'USD', f32B_amt:'100000.00', f39A:'10/10', f39B:'110000',
       f39C:'FREIGHT, INSURANCE', f41a_bank:'NOMINATED BANK XYZ', f41a_role:'BY MIX PAYMENT', f42C:'60 DAYS FROM B/L DATE',
       f42a_drawee:'NOMINATED BANK XYZ', f42M:'%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE', f42P:'60 DAYS FROM B/L DATE',
-      f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'251015', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
+      f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'2025-10-15', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
       f45A:'ELECTRONICS, 1000 PCS, FOB ISTANBUL', f46A:'SIGNED COMMERCIAL INVOICE ...', f47A:'ALL DOCUMENTS MUST STATE L/C NUMBER',
       f49G:'POST FINANCING AVAILABLE', f49H:'BANK DISCOUNT TERMS APPLY', f71D:'ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY', f48:'21', f49:'MAY ADD',
       f58a:'CONFIRMING BANK ABC', f53a:'REIMBURSING BANK XYZ', f78:'FOLLOW STANDARD INSTRUCTIONS', f57a:'SECOND ADVISING BANK DEF', f72Z:'N/A'
@@ -191,6 +191,9 @@
     win.document.close();
     win.focus();
     win.print();
+    
+    // Update statistics
+    localStorage.setItem('last_pdf_export', new Date().toISOString());
   }
 
   function toYYMMDD(raw){
@@ -244,6 +247,23 @@
   // Load data when page loads
   document.addEventListener('DOMContentLoaded', loadFormData);
 
+  // Form submission handler - Kaydet butonu
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Save all form data to localStorage
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.id) {
+        localStorage.setItem(el.id, el.value || '');
+      }
+    });
+    
+    // Mark that user has saved data
+    localStorage.setItem('userHasUsedForm', 'true');
+    
+    alert('MT700 formu başarıyla kaydedildi! Sayfa yenilendiğinde verileriniz korunacak.');
+  });
+
   // Debug function to test sync
   window.testSyncMT700 = function() {
     console.log('Testing MT700 sync...');
@@ -251,6 +271,303 @@
     syncToMainForm('mt59', document.getElementById('mt59').value);
     console.log('Sync sent to main form');
   };
+
+  // API Key Management for MT700
+  const mtApiKeyStatus = document.getElementById('mtApiKeyStatus');
+  const mtApiKeyDisplay = document.getElementById('mtApiKeyDisplay');
+
+  // Load and display saved API key
+  function updateMT700ApiKeyDisplay() {
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      mtApiKeyStatus.textContent = '✓ API Key kaydedildi';
+      mtApiKeyStatus.style.color = '#10b981';
+      mtApiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
+    } else {
+      mtApiKeyStatus.textContent = '❌ API Key kaydedilmemiş';
+      mtApiKeyStatus.style.color = '#ef4444';
+      mtApiKeyDisplay.textContent = 'Kaydedilmemiş';
+    }
+  }
+
+  // Update display on load
+  updateMT700ApiKeyDisplay();
+
+  // AI Check functionality for MT700
+  const mtAiCheckBtn = document.getElementById('mtAiCheckBtn');
+  mtAiCheckBtn?.addEventListener('click', performMT700AICheck);
+
+  async function performMT700AICheck() {
+    const apiKey = localStorage.getItem('openai_api_key');
+    if (!apiKey) {
+      alert('Önce Admin Panel\'den API Key\'inizi kaydedin!');
+      return;
+    }
+
+    mtAiCheckBtn.disabled = true;
+    mtAiCheckBtn.textContent = 'AI Kontrol Ediliyor...';
+
+    try {
+      const formData = collectMT700FormData();
+      const results = await checkMT700FieldsWithAI(formData, apiKey);
+      displayMT700AIResults(results);
+      
+      // Update statistics
+      localStorage.setItem('last_ai_check', new Date().toISOString());
+      const totalForms = parseInt(localStorage.getItem('total_forms') || '0') + 1;
+      localStorage.setItem('total_forms', totalForms.toString());
+    } catch (error) {
+      console.error('AI Check Error:', error);
+      alert('AI kontrolü sırasında hata oluştu: ' + error.message);
+    } finally {
+      mtAiCheckBtn.disabled = false;
+      mtAiCheckBtn.textContent = 'AI Kontrol';
+    }
+  }
+
+  function collectMT700FormData() {
+    const data = {};
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.id && el.value) {
+        data[el.id] = el.value;
+      }
+    });
+    return data;
+  }
+
+  async function checkMT700FieldsWithAI(formData, apiKey) {
+    const results = [];
+    
+    for (const [fieldId, value] of Object.entries(formData)) {
+      if (!value.trim()) continue;
+      
+      const fieldInfo = getMT700FieldInfo(fieldId);
+      if (!fieldInfo) continue;
+
+      try {
+        const result = await checkMT700FieldWithAI(fieldId, value, fieldInfo, apiKey);
+        results.push(result);
+      } catch (error) {
+        results.push({
+          fieldId,
+          fieldName: fieldInfo.name,
+          status: 'error',
+          message: 'AI kontrolü başarısız: ' + error.message
+        });
+      }
+    }
+    
+    return results;
+  }
+
+  function getMT700FieldInfo(fieldId) {
+    const fieldMap = {
+      'mt27': { name: '27 - Sequence of Total', type: 'sequence' },
+      'mt40A': { name: '40A - Form of Documentary Credit', type: 'select' },
+      'mt20': { name: '20 - Documentary Credit Number', type: 'text' },
+      'mt23': { name: '23 - Reference to Pre-Advice', type: 'text' },
+      'mt31C': { name: '31C - Date of Issue', type: 'date' },
+      'mt40E': { name: '40E - Applicable Rules', type: 'select' },
+      'mt31D': { name: '31D - Date and Place of Expiry', type: 'date' },
+      'mt51a': { name: '51a - Applicant Bank', type: 'bank' },
+      'mt50': { name: '50 - Applicant', type: 'address' },
+      'mt59': { name: '59 - Beneficiary', type: 'address' },
+      'mt32B': { name: '32B - Currency Code, Amount', type: 'amount' },
+      'mt39A': { name: '39A - Percentage Credit Amount Tolerance', type: 'percentage' },
+      'mt39B': { name: '39B - Maximum Credit Amount', type: 'amount' },
+      'mt39C': { name: '39C - Additional Amounts Covered', type: 'text' },
+      'mt41a': { name: '41a - Available With ... By ...', type: 'bank' },
+      'mt42C': { name: '42C - Drafts at ...', type: 'text' },
+      'mt42a': { name: '42a - Drawee', type: 'bank' },
+      'mt42M': { name: '42M - Mixed Payment Details', type: 'text' },
+      'mt42P': { name: '42P - Deferred Payment Details', type: 'text' },
+      'mt43P': { name: '43P - Partial Shipments', type: 'select' },
+      'mt43T': { name: '43T - Transhipment', type: 'select' },
+      'mt44A': { name: '44A - Place of Taking in Charge', type: 'location' },
+      'mt44E': { name: '44E - Port of Loading', type: 'location' },
+      'mt44F': { name: '44F - Port of Discharge', type: 'location' },
+      'mt44B': { name: '44B - Place of Final Destination', type: 'location' },
+      'mt44C': { name: '44C - Latest Date of Shipment', type: 'date' },
+      'mt44D': { name: '44D - Shipment Period', type: 'text' },
+      'mt45A': { name: '45A - Description of Goods', type: 'text' },
+      'mt46A': { name: '46A - Documents Required', type: 'text' },
+      'mt47A': { name: '47A - Additional Conditions', type: 'text' },
+      'mt49G': { name: '49G - Special Payment Conditions for Beneficiary', type: 'text' },
+      'mt49H': { name: '49H - Special Payment Conditions for Receiving Bank', type: 'text' },
+      'mt71D': { name: '71D - Charges', type: 'text' },
+      'mt48': { name: '48 - Period for Presentation', type: 'number' },
+      'mt49': { name: '49 - Confirmation Instructions', type: 'select' },
+      'mt58a': { name: '58a - Requested Confirmation Party', type: 'bank' },
+      'mt53a': { name: '53a - Reimbursing Bank', type: 'bank' },
+      'mt78': { name: '78 - Instructions to Paying Bank', type: 'text' },
+      'mt57a': { name: '57a - Second Advising Bank', type: 'bank' },
+      'mt72Z': { name: '72Z - Sender to Receiver Information', type: 'text' }
+    };
+    
+    return fieldMap[fieldId];
+  }
+
+  async function checkMT700FieldWithAI(fieldId, value, fieldInfo, apiKey) {
+    const prompt = `MT700 akreditif formu alanı kontrolü yapıyorum. Sen bir SWIFT MT700 akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
+
+Alan: ${fieldInfo.name} (${fieldId})
+Değer: "${value}"
+Alan Tipi: ${fieldInfo.type}
+
+Bu MT700 alanı için aşağıdaki kontrolleri yap:
+1. SWIFT MT700 formatına uygunluk
+2. Alan içeriği doğruluğu ve tutarlılığı
+3. Uluslararası standartlara uygunluk
+4. Potansiyel hatalar ve eksiklikler
+5. Resmi daire standartlarına uygunluk
+6. SWIFT mesaj formatı kurallarına uygunluk
+
+Özellikle dikkat et:
+- SWIFT MT700 formatına uygunluk
+- Alan içeriği doğru mu?
+- Tarih formatları doğru mu?
+- Para birimi kodları ISO standartlarına uygun mu?
+- Banka bilgileri doğru mu?
+- Adres bilgileri eksiksiz mi?
+- Tutarlar mantıklı mı?
+- Uluslararası akreditif kurallarına uygunluk
+
+Her MT700 alanı için örnek doğru kullanım:
+- 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek)
+- 40A: "IRREVOCABLE" (geri alınamaz)
+- 20: "LC2025001" (akreditif numarası)
+- 23: "REF123456" (ön ihbar referansı)
+- 31C: "2025-09-01" (düzenlenme tarihi)
+- 40E: "UCP LATEST VERSION" (uygulanacak kurallar)
+- 31D: "2025-12-31" (vade tarihi)
+- 51a: "ISBKTRISXXX" (amir banka SWIFT)
+- 50: "ABC IMPORT LTD., 123 Main St, City, Country" (amir tam adres)
+- 59: "XYZ EXPORT LLC, 456 Business Ave, City, Country" (lehtar tam adres)
+- 32B: "USD" + "100000.00" (para birimi + tutar)
+- 39A: "10/10" (tolerans yüzdesi)
+- 39B: "110000" (maksimum tutar)
+- 39C: "FREIGHT, INSURANCE" (ek masraflar)
+- 41a: "NOMINATED BANK XYZ" + "BY PAYMENT" (banka + görev)
+- 42C: "SIGHT" veya "90 DAYS FROM B/L DATE" (poliçe vadesi)
+- 42a: "NOMINATED BANK XYZ" (drawee)
+- 42M: "%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE" (karışık ödeme)
+- 42P: "60 DAYS FROM B/L DATE" (vadeli detay)
+- 43P: "ALLOWED" veya "NOT ALLOWED" (kısmi yükleme)
+- 43T: "ALLOWED" veya "NOT ALLOWED" (aktarma)
+- 44A: "ISTANBUL" (teslim alma yeri)
+- 44E: "MERSIN" (yükleme limanı)
+- 44F: "HAMBURG" (boşaltma limanı)
+- 44B: "HAMBURG CITY" (teslim yeri)
+- 44C: "2025-10-15" (son yükleme tarihi)
+- 44D: "NOT EARLIER THAN 250901 AND NOT LATER THAN 251015" (yükleme süresi)
+- 45A: "ELECTRONICS, 1000 PCS, FOB ISTANBUL" (mal tanımı)
+- 46A: "SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS" (belgeler)
+- 47A: "ALL DOCUMENTS MUST STATE L/C NUMBER" (ilave şartlar)
+- 49G: "POST FINANCING AVAILABLE" (lehtar özel ödeme)
+- 49H: "BANK DISCOUNT TERMS APPLY" (banka özel ödeme)
+- 71D: "ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY" (masraflar)
+- 48: "21" (ibraz süresi gün)
+- 49: "WITHOUT" veya "CONFIRM" veya "MAY ADD" (teyit talimatı)
+- 58a: "CONFIRMING BANK ABC" (teyit bankası)
+- 53a: "REIMBURSING BANK XYZ" (ödeme bankası)
+- 78: "FOLLOW STANDARD INSTRUCTIONS" (ödeme talimatları)
+- 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)
+- 72Z: "N/A" (serbest mesaj)
+
+Sadece JSON formatında yanıt ver:
+{
+  "status": "success|warning|error",
+  "message": "Detaylı kontrol sonucu açıklaması",
+  "suggestions": ["öneri1", "öneri2"]
+}`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'Sen bir SWIFT MT700 akreditif uzmanısın. MT700 formatına uygunluk kontrollerini detaylı yaparsın.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.1
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+    
+    try {
+      const result = JSON.parse(aiResponse);
+      return {
+        fieldId,
+        fieldName: fieldInfo.name,
+        value,
+        status: result.status,
+        message: result.message,
+        suggestions: result.suggestions || []
+      };
+    } catch (e) {
+      return {
+        fieldId,
+        fieldName: fieldInfo.name,
+        value,
+        status: 'error',
+        message: 'AI yanıtı parse edilemedi',
+        suggestions: []
+      };
+    }
+  }
+
+  function displayMT700AIResults(results) {
+    // Remove previous results
+    const existingResults = document.querySelector('.ai-results');
+    if (existingResults) {
+      existingResults.remove();
+    }
+
+    const resultsContainer = document.createElement('div');
+    resultsContainer.className = 'ai-results';
+    resultsContainer.innerHTML = '<h3>MT700 AI Kontrol Sonuçları</h3>';
+
+    results.forEach(result => {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `ai-result ${result.status === 'error' ? 'ai-error' : result.status === 'warning' ? 'ai-warning' : ''}`;
+      
+      let html = `<strong>${result.fieldName}</strong><br>`;
+      html += `<em>Değer:</em> ${result.value}<br>`;
+      html += `<em>Durum:</em> ${result.status}<br>`;
+      html += `<em>Mesaj:</em> ${result.message}<br>`;
+      
+      if (result.suggestions && result.suggestions.length > 0) {
+        html += `<em>Öneriler:</em><ul>`;
+        result.suggestions.forEach(suggestion => {
+          html += `<li>${suggestion}</li>`;
+        });
+        html += `</ul>`;
+      }
+      
+      resultDiv.innerHTML = html;
+      resultsContainer.appendChild(resultDiv);
+    });
+
+    form.appendChild(resultsContainer);
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+  }
 })();
 
 

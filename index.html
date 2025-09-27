@@ -76,7 +76,7 @@
       <!-- 31C - Düzenlenme tarihi [M but left blank] -->
       <section class="field-group">
         <label for="f31C"><span class="req">M</span> 31C - Düzenlenme tarihi</label>
-        <input id="f31C" name="f31C" type="text" inputmode="numeric" pattern="\\d{6}" placeholder="YYMMDD (boş bırakılabilir)" />
+        <input id="f31C" name="f31C" type="date" placeholder="Tarih seçin" />
       </section>
 
       <!-- 40E - Uygulanacak kurallar [M] -->
@@ -95,8 +95,8 @@
       <!-- 31D - Akreditifin vadesi [M] -->
       <section class="field-group">
         <label for="f31D"><span class="req">M</span> 31D - Akreditifin vadesi (Place of Expiry)</label>
-        <input id="f31D" name="f31D" type="text" inputmode="numeric" pattern="\\d{6}" placeholder="YYMMDD (örn: 250909)" required />
-        <small>Tarih formatı YYMMDD (örn: 2025-09-09 için 250909)</small>
+        <input id="f31D" name="f31D" type="date" required />
+        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
       </section>
 
       <!-- 51a - Amir/Alıcının bankası [O] -->
@@ -306,7 +306,8 @@
       <!-- 44C - Son Yükleme Tarihi [O] -->
       <section class="field-group">
         <label for="f44C"><span class="opt">O</span> 44C - Son Yükleme Tarihi</label>
-        <input id="f44C" name="f44C" type="text" inputmode="numeric" pattern="\\d{6}" placeholder="YYMMDD" />
+        <input id="f44C" name="f44C" type="date" />
+        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
       </section>
 
       <!-- 44D - Yükleme Süresi [O] -->
@@ -391,7 +392,23 @@
         <button type="reset" class="secondary">Temizle</button>
         <button type="button" id="demoBtn" class="secondary">Demo Veri</button>
         <button type="button" id="pdfBtn">PDF Önizleme</button>
+        <button type="button" id="aiCheckBtn" class="ai-check">AI Kontrol</button>
       </footer>
+      
+      <!-- API Key Configuration -->
+      <div class="api-config" style="margin-top: 20px; padding: 15px; background: #1e293b; border-radius: 8px; border: 1px solid #334155;">
+        <h4 style="margin: 0 0 10px; color: #e2e8f0;">OpenAI API Key Ayarları</h4>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span id="apiKeyStatus" style="color: #94a3b8; font-size: 12px;">API Key durumu kontrol ediliyor...</span>
+          <a href="admin.html" style="background: #7c3aed; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px;">🔐 Admin Panel</a>
+        </div>
+        <div style="background: #0f172a; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #94a3b8;">
+          API Key: <span id="apiKeyDisplay">Yükleniyor...</span>
+        </div>
+        <div style="margin-top: 8px; font-size: 11px; color: #64748b;">
+          💡 API Key'i yönetmek için Admin Panel'e giriş yapın (admin/akreditif2025)
+        </div>
+      </div>
     </form>
   </main>
 

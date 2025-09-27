@@ -44,8 +44,8 @@
       <section class="grid-2 field-group">
         <div>
           <label for="mt31C">31C - Düzenlenme Tarihi (Date of Issue)</label>
-          <input id="mt31C" type="text" inputmode="numeric" placeholder="YYMMDD" />
-          <small>Tarih YYMMDD yazılmalıdır (örn: 250901).</small>
+          <input id="mt31C" type="date" />
+          <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
         </div>
         <div>
           <label for="mt40E">40E - Uygulanacak Kurallar (Applicable Rules)</label>
@@ -56,8 +56,8 @@
 
       <section class="field-group">
         <label for="mt31D">31D - Vade ve Yer (Date and Place of Expiry)</label>
-        <input id="mt31D" type="text" inputmode="numeric" placeholder="YYMMDD" />
-        <small>Vade tarihi YYMMDD yazılmalıdır.</small>
+        <input id="mt31D" type="date" />
+        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
       </section>
 
       <section class="field-group">
@@ -175,8 +175,8 @@
       <section class="grid-2 field-group">
         <div>
           <label for="mt44C">44C - Son Yükleme Tarihi (Latest Date of Shipment)</label>
-          <input id="mt44C" type="text" placeholder="YYMMDD" />
-          <small>YYMMDD formatında.</small>
+          <input id="mt44C" type="date" />
+          <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
         </div>
         <div>
           <label for="mt44D">44D - Yükleme Periyodu (Shipment Period)</label>
@@ -267,11 +267,28 @@
       </section>
 
       <footer class="form-actions">
+        <button type="submit">Kaydet</button>
         <button type="button" id="mtPdfBtn">PDF Önizleme</button>
         <button type="reset" class="secondary">Temizle</button>
         <button type="button" id="mtDemoBtn" class="secondary">Demo Veri</button>
+        <button type="button" id="mtAiCheckBtn" class="ai-check">AI Kontrol</button>
         <a class="secondary" style="padding:10px 14px;border-radius:8px;background:#334155;color:#fff;text-decoration:none" href="index.html">Başvuru Formuna Dön</a>
       </footer>
+      
+      <!-- API Key Configuration -->
+      <div class="api-config" style="margin-top: 20px; padding: 15px; background: #1e293b; border-radius: 8px; border: 1px solid #334155;">
+        <h4 style="margin: 0 0 10px; color: #e2e8f0;">OpenAI API Key Ayarları</h4>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span id="mtApiKeyStatus" style="color: #94a3b8; font-size: 12px;">API Key durumu kontrol ediliyor...</span>
+          <a href="admin.html" style="background: #7c3aed; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px;">🔐 Admin Panel</a>
+        </div>
+        <div style="background: #0f172a; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #94a3b8;">
+          API Key: <span id="mtApiKeyDisplay">Yükleniyor...</span>
+        </div>
+        <div style="margin-top: 8px; font-size: 11px; color: #64748b;">
+          💡 API Key'i yönetmek için Admin Panel'e giriş yapın (admin/akreditif2025)
+        </div>
+      </div>
     </form>
   </main>
 

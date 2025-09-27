@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Akreditif Sistemi</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .admin-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .admin-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .admin-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .admin-section h3 {
+      margin: 0 0 15px;
+      color: var(--accent);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      background: #0e1727;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+    }
+    .status-message {
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .status-success {
+      background: #065f46;
+      color: #d1fae5;
+      border: 1px solid #10b981;
+    }
+    .status-error {
+      background: #991b1b;
+      color: #fecaca;
+      border: 1px solid #ef4444;
+    }
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .nav-links a {
+      background: var(--accent);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      background: #2563eb;
+    }
+    .api-key-display {
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      word-break: break-all;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Login Form -->
+    <div id="loginForm" class="admin-section">
+      <div class="admin-header">
+        <h1>🔐 Admin Girişi</h1>
+        <p>Yönetim paneline erişim için giriş yapın</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="adminUsername">Kullanıcı Adı:</label>
+        <input type="text" id="adminUsername" placeholder="admin" />
+      </div>
+      <div class="form-group">
+        <label for="adminPassword">Şifre:</label>
+        <input type="password" id="adminPassword" placeholder="••••••••" />
+      </div>
+      <button id="loginBtn" style="background: #059669; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%;">Giriş Yap</button>
+      <div id="loginStatus" class="status-message" style="display: none;"></div>
+    </div>
+
+    <!-- Admin Panel Content (Hidden by default) -->
+    <div id="adminContent" style="display: none;">
+      <div class="admin-header">
+        <h1>🔧 Admin Panel</h1>
+        <p>Akreditif Sistemi Yönetim Paneli</p>
+        <button id="logoutBtn" style="background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">Çıkış Yap</button>
+      </div>
+
+      <div class="nav-links">
+        <a href="index.html">Başvuru Formu</a>
+        <a href="mt700.html">MT700 Formu</a>
+        <a href="admin.html">Admin Panel</a>
+      </div>
+
+    <div class="admin-section">
+      <h3>🔑 OpenAI API Key Yönetimi</h3>
+      <div class="form-group">
+        <label for="adminApiKey">OpenAI API Key:</label>
+        <input type="password" id="adminApiKey" placeholder="sk-..." />
+      </div>
+      <button id="saveAdminApiKey" style="background: #059669; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-right: 10px;">API Key Kaydet</button>
+      <button id="testApiKey" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">API Key Test Et</button>
+      <div id="apiKeyStatus" class="status-message" style="display: none;"></div>
+      
+      <div id="currentApiKey" style="margin-top: 15px;">
+        <strong>Mevcut API Key:</strong>
+        <div class="api-key-display" id="apiKeyDisplay">Yükleniyor...</div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📊 Sistem Durumu</h3>
+      <div class="form-group">
+        <label>Sistem Bilgileri:</label>
+        <div style="background: #1e293b; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px;">
+          <div>✅ Başvuru Formu: Aktif</div>
+          <div>✅ MT700 Formu: Aktif</div>
+          <div>✅ AI Kontrol Sistemi: <span id="aiStatus">Kontrol Ediliyor...</span></div>
+          <div>✅ PDF Export: Aktif</div>
+          <div>✅ Senkronizasyon: Aktif</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>📋 Kullanım İstatistikleri</h3>
+      <div class="form-group">
+        <label>Son Kullanım:</label>
+        <div style="background: #1e293b; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px;">
+          <div>Son AI Kontrol: <span id="lastAiCheck">-</span></div>
+          <div>Toplam Form Doldurma: <span id="totalForms">-</span></div>
+          <div>Son PDF Export: <span id="lastPdfExport">-</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>🛠️ Sistem Araçları</h3>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="clearAllData" style="background: #dc2626; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Tüm Verileri Temizle</button>
+        <button id="exportSettings" style="background: #7c3aed; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Ayarları Dışa Aktar</button>
+        <button id="importSettings" style="background: #059669; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Ayarları İçe Aktar</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <script>
+    // Admin Panel JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+      // Login elements
+      const loginForm = document.getElementById('loginForm');
+      const adminContent = document.getElementById('adminContent');
+      const adminUsername = document.getElementById('adminUsername');
+      const adminPassword = document.getElementById('adminPassword');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginStatus = document.getElementById('loginStatus');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      // Admin credentials (in production, these should be stored securely)
+      const ADMIN_CREDENTIALS = {
+        username: 'admin',
+        password: '12345'
+      };
+
+      // Check if user is already logged in
+      function checkLoginStatus() {
+        const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+        if (isLoggedIn) {
+          showAdminPanel();
+        } else {
+          showLoginForm();
+        }
+      }
+
+      // Show login form
+      function showLoginForm() {
+        loginForm.style.display = 'block';
+        adminContent.style.display = 'none';
+        adminUsername.value = '';
+        adminPassword.value = '';
+      }
+
+      // Show admin panel
+      function showAdminPanel() {
+        loginForm.style.display = 'none';
+        adminContent.style.display = 'block';
+        loadCurrentApiKey();
+        updateStats();
+      }
+
+      // Login function
+      function login() {
+        const username = adminUsername.value.trim();
+        const password = adminPassword.value.trim();
+
+        if (!username || !password) {
+          showLoginStatus('Kullanıcı adı ve şifre gerekli!', 'error');
+          return;
+        }
+
+        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+          localStorage.setItem('admin_logged_in', 'true');
+          showLoginStatus('✅ Giriş başarılı!', 'success');
+          setTimeout(() => {
+            showAdminPanel();
+          }, 1000);
+        } else {
+          showLoginStatus('❌ Kullanıcı adı veya şifre hatalı!', 'error');
+        }
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem('admin_logged_in');
+        showLoginForm();
+      }
+
+      // Show login status
+      function showLoginStatus(message, type) {
+        loginStatus.textContent = message;
+        loginStatus.className = `status-message status-${type}`;
+        loginStatus.style.display = 'block';
+        
+        setTimeout(() => {
+          loginStatus.style.display = 'none';
+        }, 3000);
+      }
+
+      // Event listeners
+      loginBtn.addEventListener('click', login);
+      logoutBtn.addEventListener('click', logout);
+      
+      // Enter key support for login
+      adminPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          login();
+        }
+      });
+
+      // Admin Panel elements (only accessible after login)
+      const adminApiKeyInput = document.getElementById('adminApiKey');
+      const saveAdminApiKeyBtn = document.getElementById('saveAdminApiKey');
+      const testApiKeyBtn = document.getElementById('testApiKey');
+      const apiKeyStatus = document.getElementById('apiKeyStatus');
+      const apiKeyDisplay = document.getElementById('apiKeyDisplay');
+      const aiStatus = document.getElementById('aiStatus');
+      const lastAiCheck = document.getElementById('lastAiCheck');
+      const totalForms = document.getElementById('totalForms');
+      const lastPdfExport = document.getElementById('lastPdfExport');
+      const clearAllDataBtn = document.getElementById('clearAllData');
+      const exportSettingsBtn = document.getElementById('exportSettings');
+      const importSettingsBtn = document.getElementById('importSettings');
+
+      // Load current API key
+      function loadCurrentApiKey() {
+        const savedApiKey = localStorage.getItem('openai_api_key');
+        if (savedApiKey) {
+          adminApiKeyInput.value = savedApiKey;
+          apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
+        } else {
+          apiKeyDisplay.textContent = 'API Key kaydedilmemiş';
+        }
+      }
+
+      // Save API key
+      saveAdminApiKeyBtn.addEventListener('click', function() {
+        const apiKey = adminApiKeyInput.value.trim();
+        if (!apiKey) {
+          showStatus('API Key boş olamaz!', 'error');
+          return;
+        }
+        
+        if (!apiKey.startsWith('sk-')) {
+          showStatus('Geçersiz API Key formatı!', 'error');
+          return;
+        }
+
+        localStorage.setItem('openai_api_key', apiKey);
+        showStatus('✅ API Key başarıyla kaydedildi!', 'success');
+        loadCurrentApiKey();
+      });
+
+      // Test API key
+      testApiKeyBtn.addEventListener('click', async function() {
+        const apiKey = adminApiKeyInput.value.trim();
+        if (!apiKey) {
+          showStatus('Önce API Key girin!', 'error');
+          return;
+        }
+
+        showStatus('API Key test ediliyor...', 'success');
+        
+        try {
+          const response = await fetch('https://api.openai.com/v1/models', {
+            headers: {
+              'Authorization': `Bearer ${apiKey}`
+            }
+          });
+
+          if (response.ok) {
+            showStatus('✅ API Key geçerli ve çalışıyor!', 'success');
+            aiStatus.textContent = 'Aktif';
+          } else {
+            showStatus('❌ API Key geçersiz!', 'error');
+            aiStatus.textContent = 'Hatalı';
+          }
+        } catch (error) {
+          showStatus('❌ API Key test edilemedi: ' + error.message, 'error');
+          aiStatus.textContent = 'Hatalı';
+        }
+      });
+
+      // Clear all data
+      clearAllDataBtn.addEventListener('click', function() {
+        if (confirm('Tüm verileri temizlemek istediğinizden emin misiniz? Bu işlem geri alınamaz!')) {
+          localStorage.clear();
+          showStatus('✅ Tüm veriler temizlendi!', 'success');
+          loadCurrentApiKey();
+          updateStats();
+        }
+      });
+
+      // Export settings
+      exportSettingsBtn.addEventListener('click', function() {
+        const settings = {
+          apiKey: localStorage.getItem('openai_api_key'),
+          timestamp: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'akreditif-settings.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showStatus('✅ Ayarlar dışa aktarıldı!', 'success');
+      });
+
+      // Import settings
+      importSettingsBtn.addEventListener('click', function() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              try {
+                const settings = JSON.parse(e.target.result);
+                if (settings.apiKey) {
+                  localStorage.setItem('openai_api_key', settings.apiKey);
+                  showStatus('✅ Ayarlar başarıyla içe aktarıldı!', 'success');
+                  loadCurrentApiKey();
+                } else {
+                  showStatus('❌ Geçersiz ayar dosyası!', 'error');
+                }
+              } catch (error) {
+                showStatus('❌ Dosya okunamadı: ' + error.message, 'error');
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      });
+
+      // Show status message
+      function showStatus(message, type) {
+        apiKeyStatus.textContent = message;
+        apiKeyStatus.className = `status-message status-${type}`;
+        apiKeyStatus.style.display = 'block';
+        
+        setTimeout(() => {
+          apiKeyStatus.style.display = 'none';
+        }, 5000);
+      }
+
+      // Update statistics
+      function updateStats() {
+        const lastAiCheckTime = localStorage.getItem('last_ai_check');
+        const totalFormsCount = localStorage.getItem('total_forms') || '0';
+        const lastPdfExportTime = localStorage.getItem('last_pdf_export');
+
+        lastAiCheck.textContent = lastAiCheckTime ? new Date(lastAiCheckTime).toLocaleString('tr-TR') : '-';
+        totalForms.textContent = totalFormsCount;
+        lastPdfExport.textContent = lastPdfExportTime ? new Date(lastPdfExportTime).toLocaleString('tr-TR') : '-';
+      }
+
+      // Initialize
+      checkLoginStatus();
+    });
+  </script>
+</body>
+</html>

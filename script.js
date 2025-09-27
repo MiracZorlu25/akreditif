@@ -218,6 +218,10 @@
   // Helper: normalize date inputs to YYMMDD if user types DD.MM.YYYY or YYYY-MM-DD
   const dateInputs = ['f31C','f31D','f44C'].map(id=>document.getElementById(id));
   dateInputs.forEach(inp=>{
+    if (inp && inp.type === 'date') {
+      // Date inputs are already in YYYY-MM-DD format, no conversion needed
+      return;
+    }
     inp?.addEventListener('blur', ()=>{
       if (!inp.value) return;
       inp.value = toYYMMDD(inp.value);
@@ -235,7 +239,7 @@
       const yyyy = m[3].length===2 ? ('20'+m[3]) : m[3];
       return yyyy.slice(2)+mm+dd;
     }
-    // YYYY-MM-DD
+    // YYYY-MM-DD (date input format)
     m = s.match(/^(\d{4})[-\.\/](\d{1,2})[-\.\/](\d{1,2})$/);
     if (m){
       const yyyy = m[1];
@@ -366,10 +370,16 @@
     // Currency code 3 letters
     const ccy = document.getElementById('f32B_ccy').value.trim();
     if (ccy && !/^[A-Z]{3}$/.test(ccy.toUpperCase())) addFieldError(document.getElementById('f32B_ccy'), 'Para cinsi 3 harf olmalı (örn: USD)');
-    // YYMMDD patterns
+    // Date validation for date inputs
     ['f31D','f44C'].forEach(id=>{
-      const v = document.getElementById(id).value.trim();
-      if (v && !/^\d{6}$/.test(v)) addFieldError(document.getElementById(id), 'Tarih formatı YYMMDD olmalı (örn: 250909)');
+      const el = document.getElementById(id);
+      if (el && el.type === 'date') {
+        const v = el.value.trim();
+        if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) addFieldError(el, 'Geçerli bir tarih seçin');
+      } else if (el) {
+        const v = el.value.trim();
+        if (v && !/^\d{6}$/.test(v)) addFieldError(el, 'Tarih formatı YYMMDD olmalı (örn: 250909)');
+      }
     });
     // Role-based checks
     const r = role.value;
@@ -433,8 +443,13 @@
         if (v && !/^[A-Z]{3}$/.test(v.toUpperCase())) addFieldError(el,'Para cinsi 3 harf olmalı (örn: USD)');
       }
       if (el.id==='f44C' || el.id==='f31D' || el.id==='f31C'){
-        const v = el.value.trim();
-        if (v && !/^\d{6}$/.test(v)) addFieldError(el,'Tarih formatı YYMMDD olmalı (örn: 250909)');
+        if (el.type === 'date') {
+          const v = el.value.trim();
+          if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) addFieldError(el,'Geçerli bir tarih seçin');
+        } else {
+          const v = el.value.trim();
+          if (v && !/^\d{6}$/.test(v)) addFieldError(el,'Tarih formatı YYMMDD olmalı (örn: 250909)');
+        }
       }
     };
     el.addEventListener('blur', handler);
@@ -581,9 +596,9 @@
 
     document.getElementById('f40A').value = 'IRREVOCABLE';
     document.getElementById('f20').value = 'LC2025001';
-    document.getElementById('f31C').value = '250901';
+    document.getElementById('f31C').value = '2025-09-01';
     document.getElementById('f40E').value = 'UCP LATEST VERSION'; toggle40E();
-    document.getElementById('f31D').value = '251231';
+    document.getElementById('f31D').value = '2025-12-31';
     document.getElementById('f51a').value = 'ISBKTRISXXX';
     document.getElementById('f50').value = 'ABC IMPORT LTD., 123 Main St, City, Country';
     document.getElementById('f59').value = 'XYZ EXPORT LLC, 456 Business Ave, City, Country';
@@ -618,7 +633,7 @@
     document.getElementById('f44E').value = 'MERSİN';
     document.getElementById('f44F').value = 'HAMBURG';
     document.getElementById('f44B').value = 'HAMBURG CITY';
-    document.getElementById('f44C').value = '251015';
+    document.getElementById('f44C').value = '2025-10-15';
     document.getElementById('f44D').value = 'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015';
     document.getElementById('f45A').value = 'ELECTRONICS, 1000 PCS, FOB ISTANBUL';
     document.getElementById('f46A').value = 'SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS';
@@ -710,12 +725,37 @@
     win.document.close();
     win.focus();
     win.print();
+    
+    // Update statistics
+    localStorage.setItem('last_pdf_export', new Date().toISOString());
   }
 
-  function toIso(yymmdd){
-    if (!yymmdd || yymmdd.length!==6) return yymmdd;
-    const yy = yymmdd.slice(0,2), mm=yymmdd.slice(2,4), dd=yymmdd.slice(4,6);
-    return `20${yy}-${mm}-${dd}`;
+  function toIso(dateValue){
+    if (!dateValue) return '';
+    const s = String(dateValue).trim();
+    
+    // If already in YYMMDD format, return as is
+    if (/^\d{6}$/.test(s)) return s;
+    
+    // If in YYYY-MM-DD format (date input), convert to YYMMDD
+    const m = s.match(/^(\d{4})[-\.\/](\d{1,2})[-\.\/](\d{1,2})$/);
+    if (m){
+      const yyyy = m[1];
+      const mm = m[2].padStart(2,'0');
+      const dd = m[3].padStart(2,'0');
+      return yyyy.slice(2)+mm+dd;
+    }
+    
+    // If in DD.MM.YYYY format, convert to YYMMDD
+    const m2 = s.match(/^(\d{1,2})[\.\/](\d{1,2})[\.\/-](\d{2,4})$/);
+    if (m2){
+      const dd = m2[1].padStart(2,'0');
+      const mm = m2[2].padStart(2,'0');
+      const yyyy = m2[3].length===2 ? ('20'+m2[3]) : m2[3];
+      return yyyy.slice(2)+mm+dd;
+    }
+    
+    return s.replace(/\D/g,'').slice(0,6);
   }
 
   function addFieldError(element, message){
@@ -790,6 +830,29 @@
   // Load data when page loads
   document.addEventListener('DOMContentLoaded', loadFormData);
 
+  // Form submission handler - Kaydet butonu
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Save all form data to localStorage
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.id) {
+        localStorage.setItem(el.id, el.value || '');
+      }
+    });
+    
+    // Save 27 attachments
+    serializeAttachments();
+    
+    // Save 42M mix data
+    serializeMix();
+    
+    // Mark that user has saved data
+    localStorage.setItem('userHasUsedForm', 'true');
+    
+    alert('Form başarıyla kaydedildi! Sayfa yenilendiğinde verileriniz korunacak.');
+  });
+
   // Debug function to test sync
   window.testSync = function() {
     console.log('Testing sync...');
@@ -797,6 +860,295 @@
     syncToMT700('f50', document.getElementById('f50').value);
     console.log('Sync sent to MT700');
   };
+
+  // API Key Management
+  const apiKeyStatus = document.getElementById('apiKeyStatus');
+  const apiKeyDisplay = document.getElementById('apiKeyDisplay');
+
+  // Load and display saved API key
+  function updateApiKeyDisplay() {
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (savedApiKey) {
+      apiKeyStatus.textContent = '✓ API Key kaydedildi';
+      apiKeyStatus.style.color = '#10b981';
+      apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
+    } else {
+      apiKeyStatus.textContent = '❌ API Key kaydedilmemiş';
+      apiKeyStatus.style.color = '#ef4444';
+      apiKeyDisplay.textContent = 'Kaydedilmemiş';
+    }
+  }
+
+  // Update display on load
+  updateApiKeyDisplay();
+
+  // AI Check functionality
+  const aiCheckBtn = document.getElementById('aiCheckBtn');
+  aiCheckBtn?.addEventListener('click', performAICheck);
+
+  async function performAICheck() {
+    const apiKey = localStorage.getItem('openai_api_key');
+    if (!apiKey) {
+      alert('Önce Admin Panel\'den API Key\'inizi kaydedin!');
+      return;
+    }
+
+    aiCheckBtn.disabled = true;
+    aiCheckBtn.textContent = 'AI Kontrol Ediliyor...';
+
+    try {
+      const formData = collectFormData();
+      const results = await checkAllFieldsWithAI(formData, apiKey);
+      displayAIResults(results);
+      
+      // Update statistics
+      localStorage.setItem('last_ai_check', new Date().toISOString());
+      const totalForms = parseInt(localStorage.getItem('total_forms') || '0') + 1;
+      localStorage.setItem('total_forms', totalForms.toString());
+    } catch (error) {
+      console.error('AI Check Error:', error);
+      alert('AI kontrolü sırasında hata oluştu: ' + error.message);
+    } finally {
+      aiCheckBtn.disabled = false;
+      aiCheckBtn.textContent = 'AI Kontrol';
+    }
+  }
+
+  function collectFormData() {
+    const data = {};
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.id && el.value) {
+        data[el.id] = el.value;
+      }
+    });
+    return data;
+  }
+
+  async function checkAllFieldsWithAI(formData, apiKey) {
+    const results = [];
+    
+    for (const [fieldId, value] of Object.entries(formData)) {
+      if (!value.trim()) continue;
+      
+      const fieldInfo = getFieldInfo(fieldId);
+      if (!fieldInfo) continue;
+
+      try {
+        const result = await checkFieldWithAI(fieldId, value, fieldInfo, apiKey);
+        results.push(result);
+      } catch (error) {
+        results.push({
+          fieldId,
+          fieldName: fieldInfo.name,
+          status: 'error',
+          message: 'AI kontrolü başarısız: ' + error.message
+        });
+      }
+    }
+    
+    return results;
+  }
+
+  function getFieldInfo(fieldId) {
+    const fieldMap = {
+      'f27': { name: '27 - Teklif ve ekleri', type: 'sequence' },
+      'f40A': { name: '40A - Akreditifin Formu', type: 'select' },
+      'f20': { name: '20 - Akreditif numarası', type: 'text' },
+      'f31C': { name: '31C - Düzenlenme tarihi', type: 'date' },
+      'f40E': { name: '40E - Uygulanacak kurallar', type: 'select' },
+      'f31D': { name: '31D - Akreditifin vadesi', type: 'date' },
+      'f51a': { name: '51a - Amir/Alıcının bankası', type: 'bank' },
+      'f50': { name: '50 - Amir/Alıcı', type: 'address' },
+      'f59': { name: '59 - Lehtar/Satıcı', type: 'address' },
+      'f32B_ccy': { name: '32B - Para Cinsi', type: 'currency' },
+      'f32B_amt': { name: '32B - Tutar', type: 'amount' },
+      'f39A': { name: '39A - Tolerans', type: 'percentage' },
+      'f39B': { name: '39B - Maksimum Tutar', type: 'amount' },
+      'f39C': { name: '39C - İlave Dahili Tutarlar', type: 'text' },
+      'f41a_bank': { name: '41a - Banka', type: 'bank' },
+      'f41a_role': { name: '41a - Görev', type: 'select' },
+      'f42C': { name: '42C - Poliçe vadesi', type: 'text' },
+      'f42a_drawee': { name: '42a - Drawee', type: 'bank' },
+      'f42M': { name: '42M - Karışık Ödeme Detayları', type: 'text' },
+      'f42P': { name: '42P - İştira/Vadeli Akreditif Detayları', type: 'text' },
+      'f43P': { name: '43P - Kısmi Yüklemeler', type: 'select' },
+      'f43T': { name: '43T - Aktarma', type: 'select' },
+      'f44A': { name: '44A - Malı Teslim Alma Yeri', type: 'location' },
+      'f44E': { name: '44E - Yükleme Limanı', type: 'location' },
+      'f44F': { name: '44F - Boşaltma Limanı', type: 'location' },
+      'f44B': { name: '44B - Teslim Etme Yeri', type: 'location' },
+      'f44C': { name: '44C - Son Yükleme Tarihi', type: 'date' },
+      'f44D': { name: '44D - Yükleme Süresi', type: 'text' },
+      'f45A': { name: '45A - Mal ve Hizmetlerin Tanımı', type: 'text' },
+      'f46A': { name: '46A - Gerekli Belgeler', type: 'text' },
+      'f47A': { name: '47A - İlave Şartlar', type: 'text' },
+      'f49G': { name: '49G - Lehtar için Özel Ödeme', type: 'text' },
+      'f49H': { name: '49H - Alan Banka için Özel Ödeme', type: 'text' },
+      'f71D': { name: '71D - Masraflar', type: 'text' },
+      'f48': { name: '48 - İbraz süresi', type: 'number' },
+      'f49': { name: '49 - Teyit Talimatı', type: 'select' },
+      'f58a': { name: '58a - Teyit Talep Edilen Taraf', type: 'bank' },
+      'f57a': { name: '57a - İkinci İhbar Bankası', type: 'bank' }
+    };
+    
+    return fieldMap[fieldId];
+  }
+
+  async function checkFieldWithAI(fieldId, value, fieldInfo, apiKey) {
+    const prompt = `Akreditif başvuru formu alanı kontrolü yapıyorum. Sen bir akreditif uzmanısın ve resmi dairelerde kullanılacak formlar için kontroller yapıyorsun.
+
+Alan: ${fieldInfo.name} (${fieldId})
+Değer: "${value}"
+Alan Tipi: ${fieldInfo.type}
+
+Bu alan için aşağıdaki kontrolleri yap:
+1. Format doğruluğu (tarih, para birimi, SWIFT kodu vb.)
+2. İçerik tutarlılığı ve doğruluğu
+3. Eksik bilgi kontrolü
+4. Potansiyel hatalar ve riskler
+5. Resmi daire standartlarına uygunluk
+6. Uluslararası akreditif kurallarına uygunluk
+
+Özellikle dikkat et:
+- Tarih formatları doğru mu?
+- Para birimi kodları ISO standartlarına uygun mu?
+- SWIFT kodları doğru formatta mı?
+- Adres bilgileri eksiksiz mi?
+- Banka bilgileri doğru mu?
+- Tutarlar mantıklı mı?
+
+Her alan için örnek doğru kullanım:
+- 27: "1/1" (tek sayfa), "1/2" (bir ana + bir ek)
+- 40A: "IRREVOCABLE" (geri alınamaz)
+- 20: "LC2025001" (akreditif numarası)
+- 31C: "2025-09-01" (tarih formatı)
+- 40E: "UCP LATEST VERSION" (kurallar)
+- 31D: "2025-12-31" (vade tarihi)
+- 51a: "ISBKTRISXXX" (SWIFT kodu)
+- 50: "ABC IMPORT LTD., 123 Main St, City, Country" (tam adres)
+- 59: "XYZ EXPORT LLC, 456 Business Ave, City, Country" (tam adres)
+- 32B: "USD" + "100000.00" (para birimi + tutar)
+- 39A: "10/10" (tolerans)
+- 39B: "110000" (maksimum tutar)
+- 39C: "FREIGHT, INSURANCE" (ek masraflar)
+- 41a: "NOMINATED BANK XYZ" + "BY PAYMENT" (banka + görev)
+- 42C: "SIGHT" veya "90 DAYS FROM B/L DATE" (poliçe vadesi)
+- 42a: "NOMINATED BANK XYZ" (drawee)
+- 42M: "%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE" (karışık ödeme)
+- 42P: "60 DAYS FROM B/L DATE" (vadeli detay)
+- 43P: "ALLOWED" veya "NOT ALLOWED" (kısmi yükleme)
+- 43T: "ALLOWED" veya "NOT ALLOWED" (aktarma)
+- 44A: "ISTANBUL" (teslim alma yeri)
+- 44E: "MERSIN" (yükleme limanı)
+- 44F: "HAMBURG" (boşaltma limanı)
+- 44B: "HAMBURG CITY" (teslim yeri)
+- 44C: "2025-10-15" (son yükleme tarihi)
+- 44D: "NOT EARLIER THAN 250901 AND NOT LATER THAN 251015" (yükleme süresi)
+- 45A: "ELECTRONICS, 1000 PCS, FOB ISTANBUL" (mal tanımı)
+- 46A: "SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS" (belgeler)
+- 47A: "ALL DOCUMENTS MUST STATE L/C NUMBER" (ilave şartlar)
+- 49G: "POST FINANCING AVAILABLE" (lehtar özel ödeme)
+- 49H: "BANK DISCOUNT TERMS APPLY" (banka özel ödeme)
+- 71D: "ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY" (masraflar)
+- 48: "21" (ibraz süresi gün)
+- 49: "WITHOUT" veya "CONFIRM" veya "MAY ADD" (teyit talimatı)
+- 58a: "CONFIRMING BANK ABC" (teyit bankası)
+- 57a: "SECOND ADVISING BANK DEF" (ikinci ihbar bankası)
+
+Sadece JSON formatında yanıt ver:
+{
+  "status": "success|warning|error",
+  "message": "Detaylı kontrol sonucu açıklaması",
+  "suggestions": ["öneri1", "öneri2"]
+}`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'Sen bir akreditif uzmanısın. Alan kontrollerini detaylı ve doğru yaparsın.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.1
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+    
+    try {
+      const result = JSON.parse(aiResponse);
+      return {
+        fieldId,
+        fieldName: fieldInfo.name,
+        value,
+        status: result.status,
+        message: result.message,
+        suggestions: result.suggestions || []
+      };
+    } catch (e) {
+      return {
+        fieldId,
+        fieldName: fieldInfo.name,
+        value,
+        status: 'error',
+        message: 'AI yanıtı parse edilemedi',
+        suggestions: []
+      };
+    }
+  }
+
+  function displayAIResults(results) {
+    // Remove previous results
+    const existingResults = document.querySelector('.ai-results');
+    if (existingResults) {
+      existingResults.remove();
+    }
+
+    const resultsContainer = document.createElement('div');
+    resultsContainer.className = 'ai-results';
+    resultsContainer.innerHTML = '<h3>AI Kontrol Sonuçları</h3>';
+
+    results.forEach(result => {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `ai-result ${result.status === 'error' ? 'ai-error' : result.status === 'warning' ? 'ai-warning' : ''}`;
+      
+      let html = `<strong>${result.fieldName}</strong><br>`;
+      html += `<em>Değer:</em> ${result.value}<br>`;
+      html += `<em>Durum:</em> ${result.status}<br>`;
+      html += `<em>Mesaj:</em> ${result.message}<br>`;
+      
+      if (result.suggestions && result.suggestions.length > 0) {
+        html += `<em>Öneriler:</em><ul>`;
+        result.suggestions.forEach(suggestion => {
+          html += `<li>${suggestion}</li>`;
+        });
+        html += `</ul>`;
+      }
+      
+      resultDiv.innerHTML = html;
+      resultsContainer.appendChild(resultDiv);
+    });
+
+    form.appendChild(resultsContainer);
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+  }
 })();
 
 
