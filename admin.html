@@ -185,10 +185,10 @@
       const loginStatus = document.getElementById('loginStatus');
       const logoutBtn = document.getElementById('logoutBtn');
 
-      // Admin credentials from config
+      // Admin credentials (hardcoded for GitHub Pages)
       const ADMIN_CREDENTIALS = {
-        username: CONFIG.ADMIN_USERNAME,
-        password: CONFIG.ADMIN_PASSWORD
+        username: 'admin',
+        password: '12345'
       };
 
       // Check if user is already logged in
@@ -287,9 +287,10 @@
           adminApiKeyInput.value = savedApiKey;
           apiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
         } else {
-          // Use default API key from config
-          adminApiKeyInput.value = CONFIG.DEFAULT_OPENAI_API_KEY;
-          apiKeyDisplay.textContent = CONFIG.DEFAULT_OPENAI_API_KEY.substring(0, 20) + '... (Varsayılan)';
+          // Use default API key (hardcoded for GitHub Pages)
+          const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
+          adminApiKeyInput.value = defaultKey;
+          apiKeyDisplay.textContent = defaultKey.substring(0, 20) + '... (Varsayılan)';
         }
       }
 

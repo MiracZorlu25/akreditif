@@ -284,10 +284,11 @@
       mtApiKeyStatus.style.color = '#10b981';
       mtApiKeyDisplay.textContent = savedApiKey.substring(0, 20) + '...';
     } else {
-      // Use default API key from config
+      // Use default API key (hardcoded for GitHub Pages)
+      const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
       mtApiKeyStatus.textContent = '✓ Varsayılan API Key kullanılıyor';
       mtApiKeyStatus.style.color = '#10b981';
-      mtApiKeyDisplay.textContent = CONFIG.DEFAULT_OPENAI_API_KEY.substring(0, 20) + '... (Varsayılan)';
+      mtApiKeyDisplay.textContent = defaultKey.substring(0, 20) + '... (Varsayılan)';
     }
   }
 
@@ -299,7 +300,8 @@
   mtAiCheckBtn?.addEventListener('click', performMT700AICheck);
 
   async function performMT700AICheck() {
-    const apiKey = localStorage.getItem('openai_api_key') || CONFIG.DEFAULT_OPENAI_API_KEY;
+    const defaultKey = 'sk-proj-demo-key-for-github-pages-123456789';
+    const apiKey = localStorage.getItem('openai_api_key') || defaultKey;
     if (!apiKey) {
       alert('API Key bulunamadı!');
       return;
@@ -489,7 +491,7 @@ Sadece JSON formatında yanıt ver:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: CONFIG.OPENAI_MODEL,
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
@@ -500,8 +502,8 @@ Sadece JSON formatında yanıt ver:
             content: prompt
           }
         ],
-        max_tokens: CONFIG.MAX_TOKENS,
-        temperature: CONFIG.TEMPERATURE
+        max_tokens: 500,
+        temperature: 0.1
       })
     });
 
