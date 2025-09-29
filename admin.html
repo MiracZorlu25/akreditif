@@ -293,16 +293,12 @@
     </div>
   </div>
 
+  <script src="config.sample.js"></script>
   <script src="config.js"></script>
   <script>
     // Admin Panel JavaScript
     document.addEventListener('DOMContentLoaded', function() {
-      // Wait for CONFIG to be loaded
-      if (typeof CONFIG === 'undefined') {
-        console.error('CONFIG not loaded!');
-        alert('Konfigürasyon dosyası yüklenemedi. Sayfayı yenileyin.');
-        return;
-      }
+      // CONFIG fallback already loaded from config.sample.js if config.js is absent
 
       // Login elements
       const loginForm = document.getElementById('loginForm');
