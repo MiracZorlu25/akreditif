@@ -17,7 +17,8 @@ const CONFIG = {
   ENABLE_PDF_EXPORT: true,
   ENABLE_SYNC: true,
   ENABLE_STATISTICS: true,
-  DEFAULT_FIELD_RULES: (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_FIELD_RULES) ? CONFIG.DEFAULT_FIELD_RULES : {}
+  // Do not self-reference CONFIG here; keep a safe empty default
+  DEFAULT_FIELD_RULES: {}
 };
 
 if (typeof window !== 'undefined') {
