@@ -58,16 +58,13 @@
     const t = mixType.value;
     if (Number.isNaN(p) || p <= 0 || p > 100) return;
 
-    // Prevent adding if total already reached 100%
-    const currentSum = Array.from(mixList.children)
-      .map(x => Number(x.dataset.percent) || 0)
-      .reduce((a, b) => a + b, 0);
-    if (currentSum >= 100) {
-      return;
-    }
-
-    // Prevent exceeding 100 with this addition
-    if (currentSum + p > 100) {
+    // Prevent adding if total would exceed 100
+    const currentItems = Array.from(mixList.children).map(x=>({p: Number(x.dataset.percent)}));
+    const currentSum = currentItems.reduce((a,b)=>a+(b.p||0),0);
+    if (currentSum >= 100 || currentSum + p > 100) {
+      if (mixSumEl) {
+        mixSumEl.textContent = `${currentSum}%`;
+      }
       return;
     }
     const node = document.createElement('div');
@@ -94,9 +91,12 @@
     });
     mixHidden.value = items.map(i=>`%${i.p} ${i.t}`).join(', ');
 
-    // Disable add button when sum is 100, enable otherwise
-    if (addMixBtn) {
-      addMixBtn.disabled = (sum >= 100);
+    // Disable adding more when sum is 100; enable otherwise
+    if (addMixBtn && mixPercent && mixType) {
+      const locked = sum >= 100;
+      addMixBtn.disabled = locked;
+      mixPercent.disabled = locked;
+      mixType.disabled = locked;
     }
   }
 
