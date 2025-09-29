@@ -59,7 +59,7 @@
           <option>DEFERRED PAYMENT</option>
           <option>RED-CLAUSE</option>
         </select>
-        <small>Akreditifin türünü belirtir. IRREVOCABLE (geri alınamaz), TRANSFERABLE (devredilebilir), STANDBY (teminat mektubu benzeri) gibi seçeneklerden uygun olanı seçin.</small>
+        <small>Bu alana akreditifin yapısal türü yazılır.</small>
       </section>
 
       <!-- 20 - Akreditif numarası [M but left blank] -->
@@ -90,14 +90,14 @@
           <option value="OTHER">OTHER</option>
         </select>
         <input id="f40E_other" name="f40E_other" type="text" class="hidden" placeholder="Diğer kuralı yazınız" />
-        <small>Uygulanacak kurallar: UCP/EUCP gibi ICC kuralları. OTHER seçilirse kural adını açıkça yazın (ör. URC522, ISP98).</small>
+        <small>Not: UCP, ICC'nin akreditiflere ilişkin yeknesak kurallarıdır.</small>
       </section>
 
       <!-- 31D - Akreditifin vadesi [M] -->
       <section class="field-group">
         <label for="f31D"><span class="req">M</span> 31D - Akreditifin vadesi (Place of Expiry)</label>
         <input id="f31D" name="f31D" type="date" required />
-        <small>Vade (sürenin dolacağı tarih) ve yer bilgisi. Tarih seçin; PDF'de YYMMDD formatına dönüştürülür.</small>
+        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
       </section>
 
       <!-- 51a - Amir/Alıcının bankası [O] -->
@@ -110,14 +110,14 @@
       <section class="field-group">
         <label for="f50"><span class="req">M</span> 50 - Amir/Alıcı</label>
         <textarea id="f50" name="f50" required placeholder="Tam isim ve adres"></textarea>
-        <small>Amirin (ithalatçı) tam ticari unvanı ve açık posta adresi. Ülke adı ve iletişim bilgileri eklenmesi tavsiye edilir.</small>
+        <small>Resmi ticari unvanı ve posta adresini tam yazın. Ülke adı ve iletişim bilgileri (tel/faks/e-posta) varsa ekleyin.</small>
       </section>
 
       <!-- 59 - Lehtar/Satıcı [M] -->
       <section class="field-group">
         <label for="f59"><span class="req">M</span> 59 - Lehtar/Satıcı</label>
         <textarea id="f59" name="f59" required placeholder="Tam isim ve adres"></textarea>
-        <small>Lehtarın (ihracatçı) tam ticari unvanı ve açık posta adresi. İsteğe bağlı olarak vergi/IBAN bilgisi eklenebilir.</small>
+        <small>Lehtarın ticari unvanı ve adresi. İmza yetkilisi ve IBAN/Vergi No bilgilerini eklemek süreci hızlandırır.</small>
       </section>
 
       <!-- 32B - Para Cinsi ve Tutarı [M] -->
@@ -139,14 +139,17 @@
         <div>
           <label for="f39A"><span class="opt">O</span> 39A - Tolerans (+/-)</label>
           <input id="f39A" name="f39A" type="text" placeholder="10/10" />
+          <small>Tutar toleransı: +/- biçiminde yüzde toleransı.</small>
         </div>
         <div>
           <label for="f39B"><span class="opt">O</span> 39B - Maksimum Tutar</label>
           <input id="f39B" name="f39B" type="number" min="0" step="0.01" />
+          <small>Azami kredi tutarı.</small>
         </div>
         <div>
           <label for="f39C"><span class="opt">O</span> 39C - İlave Dahili Tutarlar</label>
           <input id="f39C" name="f39C" type="text" placeholder="navlun, sigorta, faiz..." />
+          <small>Navlun, sigorta, faiz vb. ilave tutarlar.</small>
         </div>
       </section>
 
@@ -199,7 +202,7 @@
         </div>
         <input id="f42C_other" type="text" class="hidden" placeholder="Serbest giriş: örn. 45 DAYS FROM SHIPMENT DATE" />
         <input id="f42C" name="f42C" type="hidden" />
-        <small>Poliçe vadesi. Vade yoksa SIGHT/AT SIGHT; vadeli ise listeden bir şablon seçin veya OTHER ile açıkça yazın (örn. 60 DAYS FROM B/L DATE).</small>
+        <small>Vade yoksa SIGHT/AT SIGHT seçin. Vadeli ise listedeki seçeneklerden biri veya OTHER ile serbest giriş yapın.</small>
       </section>
 
       <!-- 42a - Poliçenin Üzerine Çekileceği Taraf [O] -->
@@ -228,7 +231,7 @@
             <input id="f42a_drawee" name="f42a_drawee" type="text" placeholder="SWIFT kodu veya banka adı" />
           </div>
         </div>
-        <small>Drawee, poliçenin muhatabıdır. Genellikle teyit varsa teyit bankası; yoksa amir bankadır. Bazı kurgularda görevli (41a) banka seçilebilir.</small>
+        <small>Teyit varsa genelde teyit bankası; yoksa amir banka. Bazı durumlarda teyit olmasa da görevli (41a) banka yazılabilir.</small>
       </section>
 
       <!-- 42M - Karışık Ödeme Detayları [O] -->
@@ -248,7 +251,7 @@
           </select>
           <button type="button" id="addMix">Satır Ekle</button>
         </div>
-        <small>Karışık ödeme yüzdeleri toplamı %100 olmalıdır. Örnek: %20 BY PAYMENT, %30 BY DEF PAYMENT, %40 BY ACCEPTANCE, %10 RED CLAUSE. Toplam: <b id="mixSum">0%</b>. Toplam %100 olduğunda yeni satır eklenemez.</small>
+        <small>Örnek: %20 BY PAYMENT, %30 BY DEF PAYMENT, %40 BY ACCEPTANCE, %10 RED CLAUSE. Toplam: <b id="mixSum">0%</b></small>
         <input type="hidden" id="f42M" name="f42M" />
       </section>
 
@@ -267,7 +270,7 @@
           <option>İzin yok</option>
           <option>Şartlı izin var</option>
         </select>
-        <small>Kısmi yüklemeye izin verilip verilmeyeceğini belirtir. "İzin var" ise birden çok sevkiyat mümkündür; "İzin yok" ise tek sevkiyat beklenir.</small>
+        <small>Kısmi yüklemeye izin verilip verilmeyeceğini belirtir. "İzin var" seçilirse birden fazla sevkiyat yapılabilir.</small>
       </section>
 
       <!-- 43T - Aktarma [O] -->
@@ -279,7 +282,7 @@
           <option value="İzin yok">İzin yok</option>
           <option value="Şartlı izin var">Şartlı izin var</option>
         </select>
-        <small>Aktarma (transhipment) hakkı. İzin var: ara taşıma aracı değişebilir. Şart varsa bunu burada veya 47A alanında açıkça belirtin.</small>
+        <small>Akreditif konusu sevkiyat yolda araç değiştirebilecekse bu alana "izin var" veya "izin yok" veya "şartlı izin var" şeklinde yazılır. Şartlı izin var bilgisi yazılmışsa şartı burada veya 47A alanında verilmesi gerekir.</small>
       </section>
 
       <!-- 44A/44E/44F/44B [O] -->
@@ -287,20 +290,24 @@
         <div>
           <label for="f44A"><span class="opt">O</span> 44A - Malı Teslim Alma Yeri (çıkış)</label>
           <input id="f44A" name="f44A" type="text" placeholder="GAZIANTEP/KAYSERI/ANKARA" />
+          <small>Liman/havaalanı dışı çıkış yeri (karayolu/depodan teslim vb.).</small>
         </div>
         <div>
           <label for="f44E"><span class="opt">O</span> 44E - Yükleme Limanı/Havalimanı</label>
           <input id="f44E" name="f44E" type="text" placeholder="MERSİN, İZMİR, PIRE" />
+          <small>Çıkış limanı/havaalanı.</small>
         </div>
       </section>
       <section class="grid-2 field-group">
         <div>
           <label for="f44F"><span class="opt">O</span> 44F - Boşaltma Limanı/Varış Limanı</label>
           <input id="f44F" name="f44F" type="text" placeholder="PIRE, MARSILYA, HAMBURG" />
+          <small>Varış limanı/havalimanı.</small>
         </div>
         <div>
           <label for="f44B"><span class="opt">O</span> 44B - Teslim Etme Yeri (varış)</label>
           <input id="f44B" name="f44B" type="text" placeholder="BASEL/MUNCHEN/PARIS" />
+          <small>Varış/telsim yeri.</small>
         </div>
       </section>
 
@@ -340,10 +347,12 @@
         <div>
           <label for="f49G"><span class="opt">O</span> 49G - Lehtar için Özel Ödeme Şartları</label>
           <textarea id="f49G" name="f49G" placeholder="Postfinansman/iskonto şartları"></textarea>
+          <small>Postfinansman/iskonto vb. varsa yazın.</small>
         </div>
         <div>
           <label for="f49H"><span class="opt">O</span> 49H - Alan Banka için Özel Ödeme Şartları</label>
           <textarea id="f49H" name="f49H" placeholder="Banka için özel şartlar"></textarea>
+          <small>Banka için özel ödeme şartları.</small>
         </div>
       </section>
 
