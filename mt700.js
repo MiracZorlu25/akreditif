@@ -297,23 +297,41 @@
     }
   }
 
-  // Load default field rules if not exists
-  function loadDefaultFieldRules() {
-    if (typeof CONFIG === 'undefined' || !CONFIG.DEFAULT_FIELD_RULES) {
-      console.warn('CONFIG.DEFAULT_FIELD_RULES not found');
-      return;
+  // Load default field rules from GitHub repo (shared across all users)
+  async function loadDefaultFieldRules() {
+    try {
+      // First try to load from GitHub repo
+      const response = await fetch('default-rules.json');
+      if (response.ok) {
+        const repoRules = await response.json();
+        const existingRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+        
+        // Merge repo rules with local rules (local rules take priority)
+        const mergedRules = { ...repoRules, ...existingRules };
+        
+        // Save merged rules back to localStorage
+        localStorage.setItem('field_rules', JSON.stringify(mergedRules));
+        
+        console.log('Default field rules loaded from repo:', Object.keys(repoRules).length, 'rules');
+        return;
+      }
+    } catch (error) {
+      console.warn('Could not load rules from repo:', error.message);
     }
 
-    const existingRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
-    const defaultRules = CONFIG.DEFAULT_FIELD_RULES;
-    
-    // Merge default rules with existing rules (existing rules take priority)
-    const mergedRules = { ...defaultRules, ...existingRules };
-    
-    // Save merged rules back to localStorage
-    localStorage.setItem('field_rules', JSON.stringify(mergedRules));
-    
-    console.log('Default field rules loaded:', Object.keys(defaultRules).length, 'rules');
+    // Fallback to CONFIG if repo loading fails
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_FIELD_RULES) {
+      const existingRules = JSON.parse(localStorage.getItem('field_rules') || '{}');
+      const defaultRules = CONFIG.DEFAULT_FIELD_RULES;
+      
+      // Merge default rules with existing rules (existing rules take priority)
+      const mergedRules = { ...defaultRules, ...existingRules };
+      
+      // Save merged rules back to localStorage
+      localStorage.setItem('field_rules', JSON.stringify(mergedRules));
+      
+      console.log('Default field rules loaded from config:', Object.keys(defaultRules).length, 'rules');
+    }
   }
 
   // Update display on load

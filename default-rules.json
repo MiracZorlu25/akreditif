@@ -1,0 +1,192 @@
+{
+  "f27": {
+    "rule": "27 alanı 1/N formatında olmalı ve N-1 adet dosya yüklenmiş olmalıdır. Eğer \"1/3\" yazıldıysa 2 adet dosya, \"1/2\" yazıldıysa 1 adet dosya, \"1/1\" yazıldıysa 0 adet dosya yüklenmelidir.",
+    "examples": "1/1, 1/2, 1/3",
+    "isDefault": true
+  },
+  "f40A": {
+    "rule": "40A alanı sadece IRREVOCABLE veya REVOCABLE değerlerini kabul eder. IRREVOCABLE tercih edilir.",
+    "examples": "IRREVOCABLE, REVOCABLE",
+    "isDefault": true
+  },
+  "f20": {
+    "rule": "20 alanı akreditif numarası olmalı ve LC ile başlamalıdır. En az 8 karakter olmalıdır.",
+    "examples": "LC2025001, LC2025002, LC2025003",
+    "isDefault": true
+  },
+  "f31C": {
+    "rule": "31C alanı düzenlenme tarihi olmalı ve geçmiş tarih olmamalıdır. YYYY-MM-DD formatında olmalıdır.",
+    "examples": "2025-01-15, 2025-02-20, 2025-03-25",
+    "isDefault": true
+  },
+  "f40E": {
+    "rule": "40E alanı uygulanacak kuralları belirtir. UCP LATEST VERSION veya UCP600 kabul edilir.",
+    "examples": "UCP LATEST VERSION, UCP600",
+    "isDefault": true
+  },
+  "f31D": {
+    "rule": "31D alanı akreditifin vade tarihi olmalı ve gelecek tarih olmalıdır. 31C tarihinden sonra olmalıdır.",
+    "examples": "2025-12-31, 2025-06-30, 2025-09-15",
+    "isDefault": true
+  },
+  "f51a": {
+    "rule": "51a alanı amir banka SWIFT kodu olmalıdır. 11 karakter olmalı ve geçerli SWIFT formatında olmalıdır.",
+    "examples": "ISBKTRISXXX, DEUTDEFFXXX, CHASUS33XXX",
+    "isDefault": true
+  },
+  "f50": {
+    "rule": "50 alanı amir/alıcı şirket bilgisi olmalıdır. Şirket adı ve genel adres yeterlidir, SWIFT kodu zorunlu değildir.",
+    "examples": "ABC IMPORT LTD., 123 Main St, City, Country",
+    "isDefault": true
+  },
+  "f59": {
+    "rule": "59 alanı lehtar/satıcı şirket bilgisi olmalıdır. Şirket adı ve genel adres yeterlidir, SWIFT kodu zorunlu değildir.",
+    "examples": "XYZ EXPORT LLC, 456 Business Ave, City, Country",
+    "isDefault": true
+  },
+  "f32B_ccy": {
+    "rule": "32B para cinsi ISO 4217 standardına uygun 3 harfli kod olmalıdır.",
+    "examples": "USD, EUR, GBP, TRY, JPY",
+    "isDefault": true
+  },
+  "f32B_amt": {
+    "rule": "32B tutar pozitif sayı olmalı ve ondalık kısmı 2 basamak olmalıdır.",
+    "examples": "100000.00, 50000.50, 250000.75",
+    "isDefault": true
+  },
+  "f39A": {
+    "rule": "39A alanı tolerans yüzdesi olmalı ve X/Y formatında olmalıdır.",
+    "examples": "10/10, 5/5, 15/15",
+    "isDefault": true
+  },
+  "f39B": {
+    "rule": "39B alanı maksimum tutar olmalı ve pozitif sayı olmalıdır.",
+    "examples": "110000, 55000, 275000",
+    "isDefault": true
+  },
+  "f39C": {
+    "rule": "39C alanı ilave masrafları belirtir. Virgülle ayrılmış liste olmalıdır.",
+    "examples": "FREIGHT, INSURANCE, COMMISSION",
+    "isDefault": true
+  },
+  "f41a_bank": {
+    "rule": "41a banka alanı banka adı olmalıdır.",
+    "examples": "NOMINATED BANK XYZ, ADVISING BANK ABC",
+    "isDefault": true
+  },
+  "f41a_role": {
+    "rule": "41a görev alanı ödeme şeklini belirtir.",
+    "examples": "BY PAYMENT, BY ACCEPTANCE, BY NEGOTIATION, BY MIX PAYMENT",
+    "isDefault": true
+  },
+  "f42C": {
+    "rule": "42C alanı poliçe vadesi olmalıdır. SIGHT veya gün sayısı formatında olmalıdır.",
+    "examples": "SIGHT, 30 DAYS, 60 DAYS FROM B/L DATE",
+    "isDefault": true
+  },
+  "f42a_drawee": {
+    "rule": "42a alanı drawee (poliçe muhatabı) olmalıdır.",
+    "examples": "NOMINATED BANK XYZ, ADVISING BANK ABC",
+    "isDefault": true
+  },
+  "f42M": {
+    "rule": "42M alanı karışık ödeme detayları olmalı ve yüzde toplamı %100 olmalıdır.",
+    "examples": "%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE",
+    "isDefault": true
+  },
+  "f42P": {
+    "rule": "42P alanı vadeli ödeme detayları olmalıdır.",
+    "examples": "60 DAYS FROM B/L DATE, 90 DAYS FROM INVOICE DATE",
+    "isDefault": true
+  },
+  "f43P": {
+    "rule": "43P alanı kısmi yüklemeler için İzin var veya İzin yok olmalıdır.",
+    "examples": "İzin var, İzin yok, ALLOWED, NOT ALLOWED",
+    "isDefault": true
+  },
+  "f43T": {
+    "rule": "43T alanı aktarma için İzin var veya İzin yok olmalıdır.",
+    "examples": "İzin var, İzin yok, ALLOWED, NOT ALLOWED",
+    "isDefault": true
+  },
+  "f44A": {
+    "rule": "44A alanı teslim alma yeri olmalıdır. Şehir ismi yeterlidir.",
+    "examples": "ISTANBUL, ANKARA, IZMIR",
+    "isDefault": true
+  },
+  "f44E": {
+    "rule": "44E alanı yükleme limanı olmalıdır.",
+    "examples": "MERSIN, ISTANBUL, IZMIR",
+    "isDefault": true
+  },
+  "f44F": {
+    "rule": "44F alanı boşaltma limanı olmalıdır.",
+    "examples": "HAMBURG, ROTTERDAM, NEW YORK",
+    "isDefault": true
+  },
+  "f44B": {
+    "rule": "44B alanı teslim yeri olmalıdır. Şehir ismi yeterlidir.",
+    "examples": "HAMBURG CITY, NEW YORK, LONDON",
+    "isDefault": true
+  },
+  "f44C": {
+    "rule": "44C alanı son yükleme tarihi olmalı ve gelecek tarih olmalıdır.",
+    "examples": "2025-10-15, 2025-11-30, 2025-12-15",
+    "isDefault": true
+  },
+  "f44D": {
+    "rule": "44D alanı yükleme süresi olmalıdır.",
+    "examples": "NOT EARLIER THAN 250901 AND NOT LATER THAN 251015",
+    "isDefault": true
+  },
+  "f45A": {
+    "rule": "45A alanı mal ve hizmetlerin tanımı olmalıdır.",
+    "examples": "ELECTRONICS, 1000 PCS, FOB ISTANBUL",
+    "isDefault": true
+  },
+  "f46A": {
+    "rule": "46A alanı gerekli belgeleri belirtir.",
+    "examples": "SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS",
+    "isDefault": true
+  },
+  "f47A": {
+    "rule": "47A alanı ilave şartları belirtir.",
+    "examples": "ALL DOCUMENTS MUST STATE L/C NUMBER",
+    "isDefault": true
+  },
+  "f49G": {
+    "rule": "49G alanı lehtar için özel ödeme şartlarını belirtir.",
+    "examples": "POST FINANCING AVAILABLE, DISCOUNT TERMS APPLY",
+    "isDefault": true
+  },
+  "f49H": {
+    "rule": "49H alanı banka için özel ödeme şartlarını belirtir.",
+    "examples": "BANK DISCOUNT TERMS APPLY, COMMISSION DEDUCTED",
+    "isDefault": true
+  },
+  "f71D": {
+    "rule": "71D alanı masrafları belirtir.",
+    "examples": "ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY",
+    "isDefault": true
+  },
+  "f48": {
+    "rule": "48 alanı ibraz süresi gün sayısı olmalıdır.",
+    "examples": "21, 15, 30",
+    "isDefault": true
+  },
+  "f49": {
+    "rule": "49 alanı teyit talimatı olmalıdır.",
+    "examples": "WITHOUT, CONFIRM, MAY ADD",
+    "isDefault": true
+  },
+  "f58a": {
+    "rule": "58a alanı teyit talep edilen tarafı belirtir.",
+    "examples": "CONFIRMING BANK ABC, ADVISING BANK XYZ",
+    "isDefault": true
+  },
+  "f57a": {
+    "rule": "57a alanı ikinci ihbar bankasını belirtir.",
+    "examples": "SECOND ADVISING BANK DEF, ADVISING BANK GHI",
+    "isDefault": true
+  }
+}
