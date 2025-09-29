@@ -23,7 +23,7 @@
       <section class="field-group">
         <label for="f27"><span class="req">M</span> 27 - Teklif ve ekleri (adet olarak)</label>
         <input id="f27" name="f27" type="text" inputmode="numeric" pattern="\\s*\\d+\\s*\/\\s*\\d+\\s*" value="1/1" placeholder="örn: 1/3" required />
-        <small>1/1: yalnız Başvuru Formu. 1/2, 1 form + 1 ek sayfa; 1/3, 1 form + 2 ek sayfa.</small>
+        <small>Biçim 1/N olmalıdır. 1/1: yalnız form. 1/2: 1 form + 1 ek. 1/3: 1 form + 2 ek. 1/N girildiyse toplam ek sayısı N-1 olmalı ve her ek için dosya yüklenmelidir.</small>
       </section>
 
       <!-- 27 - Ek Sayfalar Ayrımı (MT701 ve diğer ekler) -->
@@ -59,19 +59,21 @@
           <option>DEFERRED PAYMENT</option>
           <option>RED-CLAUSE</option>
         </select>
-        <small>Bu alana akreditifin yapısal türü yazılır.</small>
+        <small>Akreditifin niteliğini belirtir (ör. IRREVOCABLE, TRANSFERABLE). Uygulama ve bankaların yükümlülükleri bu seçime göre belirlenir.</small>
       </section>
 
       <!-- 20 - Akreditif numarası [M but left blank] -->
       <section class="field-group">
         <label for="f20"><span class="req">M</span> 20 - Akreditif numarası</label>
-        <input id="f20" name="f20" type="text" placeholder="Bu alan boş bırakılır" />
+        <input id="f20" name="f20" type="text" placeholder="LC ile başlayan referans (opsiyonel)" />
+        <small>Banka tarafından atanacak akreditif numarasıdır. Başvuru aşamasında opsiyonel bırakılabilir.</small>
       </section>
 
       <!-- 23 - (Boş) [O] -->
       <section class="field-group">
         <label for="f23"><span class="opt">O</span> 23</label>
-        <input id="f23" name="f23" type="text" placeholder="Bu alan boş bırakılır" />
+        <input id="f23" name="f23" type="text" placeholder="Ön ihbar referansı (varsa)" />
+        <small>Ön ihbar yapıldıysa banka referansı yazılır. Yoksa boş bırakın.</small>
       </section>
 
       <!-- 31C - Düzenlenme tarihi [M but left blank] -->
@@ -90,14 +92,14 @@
           <option value="OTHER">OTHER</option>
         </select>
         <input id="f40E_other" name="f40E_other" type="text" class="hidden" placeholder="Diğer kuralı yazınız" />
-        <small>Not: UCP, ICC'nin akreditiflere ilişkin yeknesak kurallarıdır.</small>
+        <small>UCP/ eUCP gibi ICC kuralları seçilir. OTHER seçilirse geçerli kural metnini alt alana yazın.</small>
       </section>
 
       <!-- 31D - Akreditifin vadesi [M] -->
       <section class="field-group">
         <label for="f31D"><span class="req">M</span> 31D - Akreditifin vadesi (Place of Expiry)</label>
         <input id="f31D" name="f31D" type="date" required />
-        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
+        <small>Akreditifin geçerlilik bitiş tarihidir. PDF'de YYMMDD olarak gösterilir.</small>
       </section>
 
       <!-- 51a - Amir/Alıcının bankası [O] -->
@@ -110,7 +112,7 @@
       <section class="field-group">
         <label for="f50"><span class="req">M</span> 50 - Amir/Alıcı</label>
         <textarea id="f50" name="f50" required placeholder="Tam isim ve adres"></textarea>
-        <small>Resmi ticari unvanı ve posta adresini tam yazın. Ülke adı ve iletişim bilgileri (tel/faks/e-posta) varsa ekleyin.</small>
+        <small>Amirin ticari unvanı ve tam posta adresi. Ülke adı ve iletişim bilgileri eklenmesi önerilir.</small>
       </section>
 
       <!-- 59 - Lehtar/Satıcı [M] -->
@@ -125,12 +127,12 @@
         <div>
           <label for="f32B_ccy"><span class="req">M</span> 32B - Para Cinsi</label>
           <input id="f32B_ccy" name="f32B_ccy" type="text" maxlength="3" placeholder="USD, EUR..." required />
-          <small>ISO para kodu (3 harf: USD, EUR, TRY). Büyük harfle yazınız.</small>
+          <small>ISO 4217 üç harfli para kodu (USD, EUR, TRY...). Büyük harf kullanın.</small>
         </div>
         <div>
           <label for="f32B_amt"><span class="req">M</span> 32B - Tutar</label>
           <input id="f32B_amt" name="f32B_amt" type="number" min="0" step="0.01" required />
-          <small>Ondalık ayırıcı nokta, binlik ayırıcı kullanmayın. Tolerans hariç net tutar.</small>
+          <small>Ondalık ayırıcı nokta kullanın, binlik ayırıcı kullanmayın. Toleranslar 39A/B alanlarında belirtilir.</small>
         </div>
       </section>
 
@@ -199,7 +201,7 @@
         </div>
         <input id="f42C_other" type="text" class="hidden" placeholder="Serbest giriş: örn. 45 DAYS FROM SHIPMENT DATE" />
         <input id="f42C" name="f42C" type="hidden" />
-        <small>Vade yoksa SIGHT/AT SIGHT seçin. Vadeli ise listedeki seçeneklerden biri veya OTHER ile serbest giriş yapın.</small>
+        <small>Vade yoksa SIGHT/AT SIGHT seçin. Vade varsa şablondan seçin veya OTHER ile açıkça yazın (örn. 60 DAYS FROM B/L DATE).</small>
       </section>
 
       <!-- 42a - Poliçenin Üzerine Çekileceği Taraf [O] -->
@@ -228,7 +230,7 @@
             <input id="f42a_drawee" name="f42a_drawee" type="text" placeholder="SWIFT kodu veya banka adı" />
           </div>
         </div>
-        <small>Teyit varsa genelde teyit bankası; yoksa amir banka. Bazı durumlarda teyit olmasa da görevli (41a) banka yazılabilir.</small>
+        <small>Teyit varsa teyit bankası; yoksa amir banka yazılır. Gerekirse görevli (41a) banka seçeneği kullanılabilir.</small>
       </section>
 
       <!-- 42M - Karışık Ödeme Detayları [O] -->
@@ -248,7 +250,7 @@
           </select>
           <button type="button" id="addMix">Satır Ekle</button>
         </div>
-        <small>Örnek: %20 BY PAYMENT, %30 BY DEF PAYMENT, %40 BY ACCEPTANCE, %10 RED CLAUSE. Toplam: <b id="mixSum">0%</b></small>
+        <small>Örnek: %20 BY PAYMENT, %30 BY DEF PAYMENT, %40 BY ACCEPTANCE, %10 RED CLAUSE. Toplam daima %100 olmalıdır. Toplam: <b id="mixSum">0%</b></small>
         <input type="hidden" id="f42M" name="f42M" />
       </section>
 
@@ -267,7 +269,7 @@
           <option>İzin yok</option>
           <option>Şartlı izin var</option>
         </select>
-        <small>Kısmi yüklemeye izin verilip verilmeyeceğini belirtir. "İzin var" seçilirse birden fazla sevkiyat yapılabilir.</small>
+        <small>Kısmi yüklemeye izin verilip verilmeyeceğini belirtir. "İzin var" ise birden fazla sevkiyat mümkündür.</small>
       </section>
 
       <!-- 43T - Aktarma [O] -->
@@ -279,7 +281,7 @@
           <option value="İzin yok">İzin yok</option>
           <option value="Şartlı izin var">Şartlı izin var</option>
         </select>
-        <small>Akreditif konusu sevkiyat yolda araç değiştirebilecekse bu alana "izin var" veya "izin yok" veya "şartlı izin var" şeklinde yazılır. Şartlı izin var bilgisi yazılmışsa şartı burada veya 47A alanında verilmesi gerekir.</small>
+        <small>Sevkiyat sırasında aktarma yapılıp yapılmayacağını belirtir. Şartlı ise koşulu burada veya 47A alanında açıklayın.</small>
       </section>
 
       <!-- 44A/44E/44F/44B [O] -->

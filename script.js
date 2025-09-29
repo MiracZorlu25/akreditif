@@ -57,6 +57,19 @@
     const p = parseInt(mixPercent.value, 10);
     const t = mixType.value;
     if (Number.isNaN(p) || p <= 0 || p > 100) return;
+
+    // Prevent adding if total already reached 100%
+    const currentSum = Array.from(mixList.children)
+      .map(x => Number(x.dataset.percent) || 0)
+      .reduce((a, b) => a + b, 0);
+    if (currentSum >= 100) {
+      return;
+    }
+
+    // Prevent exceeding 100 with this addition
+    if (currentSum + p > 100) {
+      return;
+    }
     const node = document.createElement('div');
     node.className = 'pill';
     node.dataset.percent = String(p);
@@ -80,6 +93,11 @@
       if (sum!==100) x.classList.add('warn'); else x.classList.remove('warn');
     });
     mixHidden.value = items.map(i=>`%${i.p} ${i.t}`).join(', ');
+
+    // Disable add button when sum is 100, enable otherwise
+    if (addMixBtn) {
+      addMixBtn.disabled = (sum >= 100);
+    }
   }
 
   addMixBtn?.addEventListener('click', addMixRow);
