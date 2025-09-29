@@ -334,9 +334,6 @@
     }
   }
 
-  // Update display on load
-  updateMT700ApiKeyDisplay();
-  
   // Load default field rules
   loadDefaultFieldRules();
 
@@ -349,25 +346,10 @@
     const defaultApiKey = (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_OPENAI_API_KEY) ? CONFIG.DEFAULT_OPENAI_API_KEY : null;
     const apiKey = savedApiKey || defaultApiKey;
     
+    // Always use available key without user prompts
     if (!apiKey) {
-      alert('API Key bulunamadı! Lütfen Admin Panel\'den API Key\'inizi kaydedin.');
-      return;
-    }
-
-    // Test API Key first
-    try {
-      const testResponse = await fetch('https://api.openai.com/v1/models', {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`
-        }
-      });
-      
-      if (!testResponse.ok) {
-        alert('API Key geçersiz! Lütfen Admin Panel\'den geçerli bir API Key kaydedin.\n\nHata: ' + testResponse.status + ' ' + testResponse.statusText);
-        return;
-      }
-    } catch (error) {
-      alert('API Key test edilemedi! İnternet bağlantınızı kontrol edin.\n\nHata: ' + error.message);
+      console.warn('No API key available for MT700 AI check');
+      document.getElementById('mtAiResults').innerHTML = '<div class="ai-result error">API anahtarı bulunamadı. AI kontrolü yapılamıyor.</div>';
       return;
     }
 
