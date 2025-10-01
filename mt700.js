@@ -6,6 +6,108 @@
   // Mirror changes back to storage and to paired fields on the main form key names
   form.addEventListener('input', (e)=>{
     if (!(e.target instanceof HTMLElement)) return;
+    
+    // Special validation for mt27 field
+    if (e.target.id === 'mt27') {
+      const value = e.target.value;
+      const isValidFormat = /^\d+\/\d+$/.test(value);
+      
+      if (value && !isValidFormat) {
+        // Show error for invalid format
+        e.target.setCustomValidity('Sadece N/N formatında yazın (örn: 1/3)');
+        e.target.reportValidity();
+      } else {
+        // Clear error if format is valid
+        e.target.setCustomValidity('');
+      }
+    }
+    
+    // Special validation for mt39A field (00/00 format)
+    if (e.target.id === 'mt39A') {
+      const value = e.target.value;
+      const isValidFormat = /^\d{2}\/\d{2}$/.test(value);
+      
+      if (value && !isValidFormat) {
+        // Show error for invalid format
+        e.target.setCustomValidity('Sadece 00/00 formatında yazın (örn: 10/10)');
+        e.target.reportValidity();
+      } else {
+        // Clear error if format is valid
+        e.target.setCustomValidity('');
+      }
+    }
+    
+    // Special validation for mt44C and mt44D against mt31D
+    if (e.target.id === 'mt31D' || e.target.id === 'mt44C' || e.target.id === 'mt44D') {
+      const mt31D = document.getElementById('mt31D');
+      const mt44C = document.getElementById('mt44C');
+      const mt44D = document.getElementById('mt44D');
+      
+      const f31DValue = mt31D?.value;
+      if (!f31DValue) return;
+      
+      const expiryDate = new Date(f31DValue);
+      
+      // Validate mt44C
+      if (e.target.id === 'mt44C' && mt44C?.value) {
+        const shipmentDate = new Date(mt44C.value);
+        if (shipmentDate > expiryDate) {
+          mt44C.setCustomValidity('Son yükleme tarihi, akreditifin vadesini (31D) geçemez');
+          mt44C.reportValidity();
+        } else {
+          mt44C.setCustomValidity('');
+        }
+      }
+      
+      // Validate mt44D
+      if (e.target.id === 'mt44D' && mt44D?.value) {
+        const laterThanMatch = mt44D.value.match(/NOT LATER THAN (\d{6})/i);
+        if (laterThanMatch) {
+          const laterThanDateStr = laterThanMatch[1];
+          const year = 2000 + parseInt(laterThanDateStr.substring(0, 2));
+          const month = parseInt(laterThanDateStr.substring(2, 4)) - 1;
+          const day = parseInt(laterThanDateStr.substring(4, 6));
+          const laterThanDate = new Date(year, month, day);
+          
+          if (laterThanDate > expiryDate) {
+            mt44D.setCustomValidity('Yükleme süresi, akreditifin vadesini (31D) geçemez');
+            mt44D.reportValidity();
+          } else {
+            mt44D.setCustomValidity('');
+          }
+        }
+      }
+      
+      // Re-validate other fields when 31D changes
+      if (e.target.id === 'mt31D') {
+        if (mt44C?.value) {
+          const shipmentDate = new Date(mt44C.value);
+          if (shipmentDate > expiryDate) {
+            mt44C.setCustomValidity('Son yükleme tarihi, akreditifin vadesini (31D) geçemez');
+          } else {
+            mt44C.setCustomValidity('');
+          }
+        }
+        
+        if (mt44D?.value) {
+          const laterThanMatch = mt44D.value.match(/NOT LATER THAN (\d{6})/i);
+          if (laterThanMatch) {
+            const laterThanDateStr = laterThanMatch[1];
+            const year = 2000 + parseInt(laterThanDateStr.substring(0, 2));
+            const month = parseInt(laterThanDateStr.substring(2, 4)) - 1;
+            const day = parseInt(laterThanDateStr.substring(4, 6));
+            const laterThanDate = new Date(year, month, day);
+            
+            if (laterThanDate > expiryDate) {
+              mt44D.setCustomValidity('Yükleme süresi, akreditifin vadesini (31D) geçemez');
+            } else {
+              mt44D.setCustomValidity('');
+            }
+          }
+        }
+      }
+    }
+    
     persistToStorage();
     // Real-time sync to main form
     syncToMainForm(e.target.id, e.target.value);
@@ -17,7 +119,7 @@
     const syncMap = {
       'mt27': 'f27', 'mt40A': 'f40A', 'mt20': 'f20', 'mt23': 'f23', 'mt31C': 'f31C', 'mt40E': 'f40E',
       'mt31D': 'f31D', 'mt51a': 'f51a', 'mt50': 'f50', 'mt59': 'f59', 'mt32B': 'f32B_amt',
-      'mt39A': 'f39A', 'mt39B': 'f39B', 'mt39C': 'f39C', 'mt41a': 'f41a_bank', 'mt42C': 'f42C',
+      'mt39A': 'f39A', 'mt39B': 'f39B', 'mt39C_ccy': 'f39C_ccy', 'mt39C_amt': 'f39C_amt', 'mt39C_desc': 'f39C_desc', 'mt41a': 'f41a_bank', 'mt42C': 'f42C',
       'mt42a': 'f42a_drawee', 'mt42M': 'f42M', 'mt42P': 'f42P', 'mt43P': 'f43P', 'mt43T': 'f43T',
       'mt44A': 'f44A', 'mt44E': 'f44E', 'mt44F': 'f44F', 'mt44B': 'f44B', 'mt44C': 'f44C', 'mt44D': 'f44D',
       'mt45A': 'f45A', 'mt46A': 'f46A', 'mt47A': 'f47A', 'mt49G': 'f49G', 'mt49H': 'f49H',
@@ -55,8 +157,8 @@
     const demo = {
       f27:'1/3', f40A:'IRREVOCABLE', f20:'LC2025001', f23:'REF123456',       f31C:'2025-09-01', f40E:'UCP LATEST VERSION',
       f31D:'2025-12-31', f51a:'ISBKTRISXXX', f50:'ABC IMPORT LTD., 123 Main St, City, Country',
-      f59:'XYZ EXPORT LLC, 456 Business Ave, City, Country', f32B_ccy:'USD', f32B_amt:'100000.00', f39A:'10/10', f39B:'110000',
-      f39C:'FREIGHT, INSURANCE', f41a_bank:'NOMINATED BANK XYZ', f41a_role:'BY MIX PAYMENT', f42C:'60 DAYS FROM B/L DATE',
+      f59:'XYZ EXPORT LLC, 456 Business Ave, City, Country', f32B_ccy:'USD', f32B_amt:'100.000,00', f39A:'10/10', f39B:'110.000,00',
+      f39C_ccy:'USD', f39C_amt:'5.000,00', f39C_desc:'FREIGHT, INSURANCE', f41a_bank:'NOMINATED BANK XYZ', f41a_role:'BY MIX PAYMENT', f42C:'60 DAYS FROM B/L DATE',
       f42a_drawee:'NOMINATED BANK XYZ', f42M:'%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE', f42P:'60 DAYS FROM B/L DATE',
       f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'2025-10-15', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
       f45A:'ELECTRONICS, 1000 PCS, FOB ISTANBUL', f46A:'SIGNED COMMERCIAL INVOICE ...', f47A:'ALL DOCUMENTS MUST STATE L/C NUMBER',
@@ -69,8 +171,8 @@
     localStorage.setItem('userHasUsedForm', 'true');
     // map to mt700 inputs where id starts with mt and sync keys exist
     const map = {
-      mt27:'f27', mt40A:'f40A', mt20:'f20', mt23:'f23', mt31C:'f31C', mt40E:'f40E', mt31D:'f31D', mt51a:'f51a', mt50:'f50', mt59:'f59', mt32B:'f32B_amt',
-      mt39A:'f39A', mt39B:'f39B', mt39C:'f39C', mt41a:'f41a_bank', mt42C:'f42C', mt42a:'f42a_drawee', mt42M:'f42M', mt42P:'f42P', mt43P:'f43P', mt43T:'f43T',
+      mt27:'f27', mt40A:'f40A', mt20:'f20', mt23:'f23', mt31C:'f31C', mt40E:'f40E', mt31D:'f31D', mt51a:'f51a', mt50:'f50', mt59:'f59',
+      mt39A:'f39A', mt39B:'f39B', mt39C_ccy:'f39C_ccy', mt39C_amt:'f39C_amt', mt39C_desc:'f39C_desc', mt41a:'f41a_bank', mt42C:'f42C', mt42a:'f42a_drawee', mt42M:'f42M', mt42P:'f42P', mt43P:'f43P', mt43T:'f43T',
       mt44A:'f44A', mt44E:'f44E', mt44F:'f44F', mt44B:'f44B', mt44C:'f44C', mt44D:'f44D', mt45A:'f45A', mt46A:'f46A', mt47A:'f47A', mt49G:'f49G', mt49H:'f49H',
       mt71D:'f71D', mt48:'f48', mt49:'f49', mt58a:'f58a', mt53a:'f53a', mt78:'f78', mt57a:'f57a', mt72Z:'f72Z'
     };
@@ -82,6 +184,15 @@
         syncToMainForm(mtId, el.value);
       }
     });
+    
+    // Special handling for mt32B (combines currency + amount)
+    const mt32BEl = document.getElementById('mt32B');
+    if (mt32BEl) {
+      const ccy = localStorage.getItem('f32B_ccy') || 'USD';
+      const amt = localStorage.getItem('f32B_amt') || '100.000,00';
+      mt32BEl.value = ccy + amt;
+      syncToMainForm('mt32B', mt32BEl.value);
+    }
   });
 
   // PDF: MT700'ye özel çıktı (bold başlıklar, değerler normal; tarih alanları YYMMDD)
@@ -116,10 +227,59 @@
 
   function generateMt700Pdf(){
     const get = id => (localStorage.getItem(id) || '').toString();
+    
+    // Validate 27 field format before generating PDF
+    const f27Value = get('f27');
+    if (f27Value && !/^\d+\/\d+$/.test(f27Value)) {
+      alert('27 alanı N/N formatında olmalıdır (örn: 1/3). Lütfen düzeltin ve tekrar deneyin.');
+      return;
+    }
+    
+    // Validate 39A field format before generating PDF
+    const f39AValue = get('f39A');
+    if (f39AValue && !/^\d{2}\/\d{2}$/.test(f39AValue)) {
+      alert('39A alanı 00/00 formatında olmalıdır (örn: 10/10). Lütfen düzeltin ve tekrar deneyin.');
+      return;
+    }
+    
+    // Validate 44C and 44D dates against 31D (expiry date)
+    const f31DValue = get('f31D');
+    const f44CValue = get('f44C');
+    const f44DValue = get('f44D');
+    
+    if (f31DValue && f44CValue) {
+      const expiryDate = new Date(f31DValue);
+      const shipmentDate = new Date(f44CValue);
+      
+      if (shipmentDate > expiryDate) {
+        alert('44C - Son Yükleme Tarihi, 31D - Akreditifin vadesini geçemez. Lütfen düzeltin ve tekrar deneyin.');
+        return;
+      }
+    }
+    
+    if (f31DValue && f44DValue) {
+      // Extract the "NOT LATER THAN" date from 44D field
+      const laterThanMatch = f44DValue.match(/NOT LATER THAN (\d{6})/i);
+      if (laterThanMatch) {
+        const laterThanDateStr = laterThanMatch[1]; // YYMMDD format
+        // Convert YYMMDD to Date
+        const year = 2000 + parseInt(laterThanDateStr.substring(0, 2));
+        const month = parseInt(laterThanDateStr.substring(2, 4)) - 1; // Month is 0-indexed
+        const day = parseInt(laterThanDateStr.substring(4, 6));
+        const laterThanDate = new Date(year, month, day);
+        const expiryDate = new Date(f31DValue);
+        
+        if (laterThanDate > expiryDate) {
+          alert('44D - Yükleme Süresi, 31D - Akreditifin vadesini geçemez. Lütfen düzeltin ve tekrar deneyin.');
+          return;
+        }
+      }
+    }
+    
     const v = {
-      f27:get('f27'), f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
+      f27:f27Value, f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
       f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), f32B_ccy:get('f32B_ccy'), f32B_amt:get('f32B_amt'),
-      f39A:get('f39A'), f39B:get('f39B'), f39C:get('f39C'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
+      f39A:get('f39A'), f39B:get('f39B'), f39C_ccy:get('f39C_ccy'), f39C_amt:get('f39C_amt'), f39C_desc:get('f39C_desc'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
       f42C:get('f42C'), f42a:get('f42a_drawee'), f42M:get('f42M'), f42P:get('f42P'), f43P:get('f43P'), f43T:get('f43T'),
       f44A:get('f44A'), f44E:get('f44E'), f44F:get('f44F'), f44B:get('f44B'), f44C:get('f44C'), f44D:get('f44D'),
       f45A:get('f45A'), f46A:get('f46A'), f47A:get('f47A'), f49G:get('f49G'), f49H:get('f49H'), f71D:get('f71D'),
@@ -143,8 +303,8 @@
       ['59 : Beneficiary', v.f59],
       ['32B: Currency Code, Amount', `${(v.f32B_ccy||'').toUpperCase()}${formatAmount(v.f32B_amt)}`],
       ['39A: Percentage Credit Amount Tolerance', v.f39A],
-      ['39B: Maximum Credit Amount', v.f39B],
-      ['39C: Additional Amounts Covered', v.f39C],
+      ['39B: Maximum Credit Amount', formatAmount(v.f39B)],
+      ['39C: Additional Amounts Covered', `${(v.f39C_ccy||'').toUpperCase()}${formatAmount(v.f39C_amt)} ${v.f39C_desc||''}`.trim()],
       ['41a : Available With ... By ...', `${v.f41a_bank}\n${v.f41a_role}`],
       ['42C: Drafts at ...', v.f42C],
       ['42a : Drawee', v.f42a],
@@ -218,10 +378,19 @@
   }
 
   function formatAmount(raw){
-    if (!raw) return '';
-    const s = String(raw).trim();
-    const num = parseFloat(s.replace(/[^0-9.]/g,''));
-    if (isNaN(num)) return s;
+    if (!raw) return '0.00';
+    
+    const str = String(raw).trim();
+    if (!str) return '0.00';
+    
+    // Handle Turkish format: 12.234,56 -> 12234.56
+    // Remove thousands separators (dots) and replace decimal comma with dot
+    let cleaned = str.replace(/\./g, ''); // Remove dots (thousands separators)
+    cleaned = cleaned.replace(',', '.'); // Replace comma with dot for decimal
+    
+    const num = parseFloat(cleaned);
+    if (isNaN(num)) return '0.00';
+    
     return num.toFixed(2);
   }
 

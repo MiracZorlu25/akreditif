@@ -22,8 +22,8 @@
       <!-- 27 - Teklif ve ekleri (adet olarak) [M] -->
       <section class="field-group">
         <label for="f27"><span class="req">M</span> 27 - Teklif ve ekleri (adet olarak)</label>
-        <input id="f27" name="f27" type="text" inputmode="numeric" pattern="\\s*\\d+\\s*\/\\s*\\d+\\s*" value="1/1" placeholder="örn: 1/3" required />
-        <small>1/1: yalnız Başvuru Formu. 1/2, 1 form + 1 ek sayfa; 1/3, 1 form + 2 ek sayfa.</small>
+        <input id="f27" name="f27" type="text" inputmode="numeric" pattern="^\\d+\/\\d+$" value="1/1" placeholder="örn: 1/3" required />
+        <small>1/1'den farklı ise yazılı rakam kadar ek dosya istenir. Ekler Word, Excel veya PDF olabilir. Sadece N/N formatında yazılmalıdır.</small>
       </section>
 
       <!-- 27 - Ek Sayfalar Ayrımı (MT701 ve diğer ekler) -->
@@ -74,9 +74,9 @@
         <input id="f23" name="f23" type="text" placeholder="Bu alan boş bırakılır" />
       </section>
 
-      <!-- 31C - Düzenlenme tarihi [M but left blank] -->
+      <!-- 31C - Başlangıç/geçerli (operatif) olma tarihi [M but left blank] -->
       <section class="field-group">
-        <label for="f31C"><span class="req">M</span> 31C - Düzenlenme tarihi</label>
+        <label for="f31C"><span class="req">M</span> 31C - Başlangıç/geçerli (operatif) olma tarihi</label>
         <input id="f31C" name="f31C" type="date" placeholder="Tarih seçin" />
       </section>
 
@@ -129,8 +129,8 @@
         </div>
         <div>
           <label for="f32B_amt"><span class="req">M</span> 32B - Tutar</label>
-          <input id="f32B_amt" name="f32B_amt" type="number" min="0" step="0.01" required />
-          <small>Ondalık ayırıcı nokta, binlik ayırıcı kullanmayın. Tolerans hariç net tutar.</small>
+          <input id="f32B_amt" name="f32B_amt" type="text" placeholder="12.345,78" required />
+          <small>Küsürat ile birlikte yazın. Örnek: 12.345,78 formatında. Tolerans hariç net tutar.</small>
         </div>
       </section>
 
@@ -138,18 +138,33 @@
       <section class="grid-3 field-group">
         <div>
           <label for="f39A"><span class="opt">O</span> 39A - Tolerans (+/-)</label>
-          <input id="f39A" name="f39A" type="text" placeholder="10/10" />
-          <small>Tutar toleransı: +/- biçiminde yüzde toleransı.</small>
+          <input id="f39A" name="f39A" type="text" placeholder="00/00" pattern="^\\d{2}\/\\d{2}$" />
+          <small>Tutar toleransı: 00/00 formatında yüzde toleransı. Örnek: 10/10</small>
         </div>
         <div>
-          <label for="f39B"><span class="opt">O</span> 39B - Maksimum Tutar</label>
-          <input id="f39B" name="f39B" type="number" min="0" step="0.01" />
-          <small>Azami kredi tutarı.</small>
+          <label for="f39B"><span class="opt">O</span> 39B - Azami Akreditif Tutarı</label>
+          <input id="f39B" name="f39B" type="text" placeholder="12.345,78" />
+          <small>Azami akreditif tutarı. 32B ile aynı formatta yazın.</small>
         </div>
         <div>
-          <label for="f39C"><span class="opt">O</span> 39C - İlave Dahili Tutarlar</label>
-          <input id="f39C" name="f39C" type="text" placeholder="navlun, sigorta, faiz..." />
-          <small>Navlun, sigorta, faiz vb. ilave tutarlar.</small>
+          <label><span class="opt">O</span> 39C - İlave Dahili Tutarlar</label>
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label for="f39C_ccy">Para Cinsi</label>
+              <input id="f39C_ccy" name="f39C_ccy" type="text" maxlength="3" placeholder="USD, EUR..." />
+              <small>ISO para kodu (3 harf)</small>
+            </div>
+            <div>
+              <label for="f39C_amt">Tutar</label>
+              <input id="f39C_amt" name="f39C_amt" type="text" placeholder="1.234,56" />
+              <small>Küsürat ile yazın</small>
+            </div>
+          </div>
+          <div style="margin-top: 8px;">
+            <label for="f39C_desc">Açıklama</label>
+            <input id="f39C_desc" name="f39C_desc" type="text" placeholder="FREIGHT, INSURANCE" />
+            <small>İlave masraf açıklaması (navlun, sigorta, faiz vb.)</small>
+          </div>
         </div>
       </section>
 
@@ -172,67 +187,6 @@
         </div>
       </section>
 
-      <!-- 42C - Poliçe vadesi [O] -->
-      <section class="field-group" data-conditional="role:BY DEF PAYMENT,role:BY ACCEPTANCE,role:BY NEGOTIATION,role:BY MIX PAYMENT">
-        <label><span class="opt">O</span> 42C - Poliçe vadesi</label>
-        <div class="grid-3">
-          <select id="f42C_hasMaturity">
-            <option value="">Vade durumu</option>
-            <option value="NO">Vade yok</option>
-            <option value="YES">Vade var</option>
-          </select>
-          <select id="f42C_select_no" class="hidden">
-            <option value="">Seçiniz</option>
-            <option value="SIGHT">SIGHT</option>
-            <option value="AT SIGHT">AT SIGHT</option>
-          </select>
-          <div id="f42C_var_box" class="hidden">
-            <select id="f42C_select">
-              <option value="">Seçiniz</option>
-              <option value="30 DAYS FROM B/L DATE">30 DAYS FROM B/L DATE</option>
-              <option value="60 DAYS FROM B/L DATE">60 DAYS FROM B/L DATE</option>
-              <option value="90 DAYS FROM B/L DATE">90 DAYS FROM B/L DATE</option>
-              <option value="30 DAYS AFTER B/L DATE">30 DAYS AFTER B/L DATE</option>
-              <option value="60 DAYS AFTER B/L DATE">60 DAYS AFTER B/L DATE</option>
-              <option value="90 DAYS AFTER B/L DATE">90 DAYS AFTER B/L DATE</option>
-              <option value="30 DAYS FROM INVOICE DATE">30 DAYS FROM INVOICE DATE</option>
-              <option value="OTHER">OTHER</option>
-            </select>
-          </div>
-        </div>
-        <input id="f42C_other" type="text" class="hidden" placeholder="Serbest giriş: örn. 45 DAYS FROM SHIPMENT DATE" />
-        <input id="f42C" name="f42C" type="hidden" />
-        <small>Vade yoksa SIGHT/AT SIGHT seçin. Vadeli ise listedeki seçeneklerden biri veya OTHER ile serbest giriş yapın.</small>
-      </section>
-
-      <!-- 42a - Poliçenin Üzerine Çekileceği Taraf [O] -->
-      <section class="field-group" data-conditional="role:BY DEF PAYMENT,role:BY ACCEPTANCE,role:BY NEGOTIATION,role:BY MIX PAYMENT">
-        <label><span class="opt">O</span> 42a - Poliçenin Üzerine Çekileceği Taraf</label>
-        <div class="grid-3">
-          <div>
-            <label for="f42a_confirm">Teyit</label>
-            <select id="f42a_confirm" name="f42a_confirm">
-              <option value="">Seçiniz</option>
-              <option value="CONFIRMING">Teyit Var</option>
-              <option value="NON-CONFIRMING">Teyit Yok</option>
-            </select>
-          </div>
-          <div>
-            <label for="f42a_source">Drawee Kaynağı</label>
-            <select id="f42a_source">
-              <option value="">Seçiniz</option>
-              <option value="CONFIRMATION">Teyit Bankası (58a)</option>
-              <option value="APPLICANT">Amir Banka (51a)</option>
-              <option value="NOMINATED">Görevli/Nominated Banka (41a)</option>
-            </select>
-          </div>
-          <div>
-            <label for="f42a_drawee">Drawee</label>
-            <input id="f42a_drawee" name="f42a_drawee" type="text" placeholder="SWIFT kodu veya banka adı" />
-          </div>
-        </div>
-        <small>Teyit varsa genelde teyit bankası; yoksa amir banka. Bazı durumlarda teyit olmasa da görevli (41a) banka yazılabilir.</small>
-      </section>
 
       <!-- 42M - Karışık Ödeme Detayları [O] -->
       <section id="sec42M" class="field-group hidden">
@@ -300,14 +254,14 @@
       </section>
       <section class="grid-2 field-group">
         <div>
-          <label for="f44F"><span class="opt">O</span> 44F - Boşaltma Limanı/Varış Limanı</label>
+          <label for="f44F"><span class="opt">O</span> 44F - Boşaltma Limanı/Havalimanı</label>
           <input id="f44F" name="f44F" type="text" placeholder="PIRE, MARSILYA, HAMBURG" />
-          <small>Varış limanı/havalimanı.</small>
+          <small>Boşaltma limanı/havalimanı.</small>
         </div>
         <div>
           <label for="f44B"><span class="opt">O</span> 44B - Teslim Etme Yeri (varış)</label>
           <input id="f44B" name="f44B" type="text" placeholder="BASEL/MUNCHEN/PARIS" />
-          <small>Varış/telsim yeri.</small>
+          <small>Varış/teslim yeri.</small>
         </div>
       </section>
 
@@ -315,13 +269,14 @@
       <section class="field-group">
         <label for="f44C"><span class="opt">O</span> 44C - Son Yükleme Tarihi</label>
         <input id="f44C" name="f44C" type="date" />
-        <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
+        <small>31D'yi geçmemesi gerekir. Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
       </section>
 
       <!-- 44D - Yükleme Süresi [O] -->
       <section class="field-group">
         <label for="f44D"><span class="opt">O</span> 44D - Yükleme Süresi/Periyodu</label>
         <input id="f44D" name="f44D" type="text" placeholder="NOT EARLIER THAN 071120 AND NOT LATER THAN 071122" />
+        <small>31D'yi geçmemesi gerekir. Yükleme periyodu belirtin.</small>
       </section>
 
       <!-- 45A - Mal ve Hizmetlerin Tanımı [O] -->

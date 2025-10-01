@@ -11,13 +11,6 @@
   const mixSumEl = document.getElementById('mixSum');
   const f40E = document.getElementById('f40E');
   const f40E_other = document.getElementById('f40E_other');
-  // 42C composed control
-  const f42C_hidden = document.getElementById('f42C');
-  const f42C_hasMaturity = document.getElementById('f42C_hasMaturity');
-  const f42C_select_no = document.getElementById('f42C_select_no');
-  const f42C_var_box = document.getElementById('f42C_var_box');
-  const f42C_select = document.getElementById('f42C_select');
-  const f42C_other = document.getElementById('f42C_other');
   // 27 attachments
   const f27 = document.getElementById('f27');
   const sec27 = document.getElementById('sec27');
@@ -100,65 +93,10 @@
   f40E.addEventListener('change', toggle40E);
   toggle40E();
 
-  // 42C behavior
-  function update42C(){
-    const mode = f42C_hasMaturity.value;
-    // Toggle groups
-    if (mode === 'NO'){
-      f42C_select_no.classList.remove('hidden');
-      f42C_var_box.classList.add('hidden');
-      f42C_other.classList.add('hidden');
-      f42C_hidden.value = f42C_select_no.value || '';
-    } else if (mode === 'YES'){
-      f42C_select_no.classList.add('hidden');
-      f42C_var_box.classList.remove('hidden');
-      const v = f42C_select.value;
-      if (v === 'OTHER'){
-        f42C_other.classList.remove('hidden');
-        f42C_hidden.value = (f42C_other.value||'').trim();
-      } else {
-        f42C_other.classList.add('hidden');
-        f42C_other.value = '';
-        f42C_hidden.value = v || '';
-      }
-    } else {
-      f42C_select_no.classList.add('hidden');
-      f42C_var_box.classList.add('hidden');
-      f42C_other.classList.add('hidden');
-      f42C_hidden.value = '';
-    }
-  }
-  f42C_hasMaturity?.addEventListener('change', update42C);
-  f42C_select_no?.addEventListener('change', update42C);
-  f42C_select?.addEventListener('change', update42C);
-  f42C_other?.addEventListener('input', update42C);
-  update42C();
 
-  // 42a behavior: autofill by source and confirmation
-  const f42a_confirm = document.getElementById('f42a_confirm');
-  const f42a_source = document.getElementById('f42a_source');
-  const f42a_drawee = document.getElementById('f42a_drawee');
   const f58a = document.getElementById('f58a');
   const f51a = document.getElementById('f51a');
   const f41a_bank = document.getElementById('f41a_bank');
-
-  function update42aFromSource(){
-    const src = f42a_source.value;
-    if (src === 'CONFIRMATION'){
-      f42a_drawee.value = (f58a?.value || '').trim();
-    } else if (src === 'APPLICANT'){
-      f42a_drawee.value = (f51a?.value || '').trim();
-    } else if (src === 'NOMINATED'){
-      f42a_drawee.value = (f41a_bank?.value || '').trim();
-    }
-  }
-  f42a_source?.addEventListener('change', update42aFromSource);
-  f42a_confirm?.addEventListener('change', ()=>{
-    if (f42a_confirm.value === 'CONFIRMING' && (f58a?.value || '').trim()){
-      f42a_source.value = 'CONFIRMATION';
-      update42aFromSource();
-    }
-  });
 
   // Contextual helper texts under fields
   installFieldHelps();
@@ -349,7 +287,85 @@
     return s.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
   }
 
-  f27.addEventListener('input', toggle27);
+  f27.addEventListener('input', (e) => {
+    // Real-time format validation for 27 field
+    const value = e.target.value;
+    const isValidFormat = /^\d+\/\d+$/.test(value);
+    
+    if (value && !isValidFormat) {
+      // Show error for invalid format
+      e.target.setCustomValidity('Sadece N/N formatında yazın (örn: 1/3)');
+      e.target.reportValidity();
+    } else {
+      // Clear error if format is valid
+      e.target.setCustomValidity('');
+    }
+    
+    toggle27();
+  });
+  
+  // Real-time format validation for 39A field (00/00 format)
+  const f39A = document.getElementById('f39A');
+  f39A?.addEventListener('input', (e) => {
+    const value = e.target.value;
+    const isValidFormat = /^\d{2}\/\d{2}$/.test(value);
+    
+    if (value && !isValidFormat) {
+      // Show error for invalid format
+      e.target.setCustomValidity('Sadece 00/00 formatında yazın (örn: 10/10)');
+      e.target.reportValidity();
+    } else {
+      // Clear error if format is valid
+      e.target.setCustomValidity('');
+    }
+  });
+  
+  // Real-time date validation for 44C and 44D fields against 31D
+  const f31D = document.getElementById('f31D');
+  const f44C = document.getElementById('f44C');
+  const f44D = document.getElementById('f44D');
+  
+  function validateDateAgainst31D() {
+    const f31DValue = f31D?.value;
+    if (!f31DValue) return; // No expiry date to validate against
+    
+    const expiryDate = new Date(f31DValue);
+    
+    // Validate 44C
+    if (f44C?.value) {
+      const shipmentDate = new Date(f44C.value);
+      if (shipmentDate > expiryDate) {
+        f44C.setCustomValidity('Son yükleme tarihi, akreditifin vadesini (31D) geçemez');
+        f44C.reportValidity();
+      } else {
+        f44C.setCustomValidity('');
+      }
+    }
+    
+    // Validate 44D
+    if (f44D?.value) {
+      const laterThanMatch = f44D.value.match(/NOT LATER THAN (\d{6})/i);
+      if (laterThanMatch) {
+        const laterThanDateStr = laterThanMatch[1];
+        const year = 2000 + parseInt(laterThanDateStr.substring(0, 2));
+        const month = parseInt(laterThanDateStr.substring(2, 4)) - 1;
+        const day = parseInt(laterThanDateStr.substring(4, 6));
+        const laterThanDate = new Date(year, month, day);
+        
+        if (laterThanDate > expiryDate) {
+          f44D.setCustomValidity('Yükleme süresi, akreditifin vadesini (31D) geçemez');
+          f44D.reportValidity();
+        } else {
+          f44D.setCustomValidity('');
+        }
+      }
+    }
+  }
+  
+  f31D?.addEventListener('change', validateDateAgainst31D);
+  f44C?.addEventListener('change', validateDateAgainst31D);
+  f44D?.addEventListener('input', validateDateAgainst31D);
+  
   addAttachmentBtn?.addEventListener('click', addAttachment);
   toggle27();
 
@@ -394,14 +410,6 @@
       const items = Array.from(mixList.children).map(x=>Number(x.dataset.percent));
       const total = items.reduce((a,b)=>a+(b||0),0);
       if (total !== 100) addFieldError(document.getElementById('sec42M'), '42M toplam yüzde 100 olmalıdır');
-    }
-    // If role implies time-based instruments and user chose OTHER but left empty
-    if ((r==='BY ACCEPTANCE' || r==='BY NEGOTIATION' || r==='BY MIX PAYMENT' || r==='BY DEF PAYMENT') && !f42C_hidden.value.trim()){
-      addFieldError(document.getElementById('f42C_select')||document.getElementById('f42C_select_no')||document.getElementById('f42C_hasMaturity'), 'Poliçe vadesini belirtiniz');
-    }
-    // 42a required for time-based instruments
-    if ((r==='BY ACCEPTANCE' || r==='BY NEGOTIATION' || r==='BY MIX PAYMENT' || r==='BY DEF PAYMENT') && !f42a_drawee.value.trim()){
-      addFieldError(f42a_drawee, 'Drawee (poliçeyi ödeyecek banka) yazılmalı');
     }
     if (f40E.value==='OTHER' && !f40E_other.value.trim()){
       addFieldError(f40E_other, 'OTHER seçildi, kuralı yazınız');
@@ -534,7 +542,7 @@
     const syncMap = {
       'f27': 'mt27', 'f40A': 'mt40A', 'f20': 'mt20', 'f23': 'mt23', 'f31C': 'mt31C', 'f40E': 'mt40E',
       'f31D': 'mt31D', 'f51a': 'mt51a', 'f50': 'mt50', 'f59': 'mt59', 'f32B_amt': 'mt32B',
-      'f39A': 'mt39A', 'f39B': 'mt39B', 'f39C': 'mt39C', 'f41a_bank': 'mt41a', 'f42C': 'mt42C',
+      'f39A': 'mt39A', 'f39B': 'mt39B', 'f39C_ccy': 'mt39C_ccy', 'f39C_amt': 'mt39C_amt', 'f39C_desc': 'mt39C_desc', 'f41a_bank': 'mt41a', 'f42C': 'mt42C',
       'f42a_drawee': 'mt42a', 'f42M': 'mt42M', 'f42P': 'mt42P', 'f43P': 'mt43P', 'f43T': 'mt43T',
       'f44A': 'mt44A', 'f44E': 'mt44E', 'f44F': 'mt44F', 'f44B': 'mt44B', 'f44C': 'mt44C', 'f44D': 'mt44D',
       'f45A': 'mt45A', 'f46A': 'mt46A', 'f47A': 'mt47A', 'f49G': 'mt49G', 'f49H': 'mt49H',
@@ -603,22 +611,15 @@
     document.getElementById('f50').value = 'ABC IMPORT LTD., 123 Main St, City, Country';
     document.getElementById('f59').value = 'XYZ EXPORT LLC, 456 Business Ave, City, Country';
     document.getElementById('f32B_ccy').value = 'USD';
-    document.getElementById('f32B_amt').value = '100000';
+    document.getElementById('f32B_amt').value = '100.000,00';
     document.getElementById('f39A').value = '10/10';
-    document.getElementById('f39B').value = '110000';
-    document.getElementById('f39C').value = 'FREIGHT, INSURANCE';
+    document.getElementById('f39B').value = '110.000,00';
+    document.getElementById('f39C_ccy').value = 'USD';
+    document.getElementById('f39C_amt').value = '5.000,00';
+    document.getElementById('f39C_desc').value = 'FREIGHT, INSURANCE';
     document.getElementById('f41a_bank').value = 'NOMINATED BANK XYZ';
     document.getElementById('f41a_role').value = 'BY MIX PAYMENT'; toggleConditional();
 
-    // 42C: vade var, 60 days from B/L date
-    document.getElementById('f42C_hasMaturity').value = 'YES'; update42C();
-    document.getElementById('f42C_select').value = '60 DAYS FROM B/L DATE'; update42C();
-
-    // 42a drawee
-    document.getElementById('f42a_confirm').value = 'NON-CONFIRMING';
-    document.getElementById('f42a_source').value = 'NOMINATED';
-    update42aFromSource();
-    if (!document.getElementById('f42a_drawee').value) document.getElementById('f42a_drawee').value = 'NOMINATED BANK XYZ';
 
     // 42M: 60 DEF, 30 ACCEPTANCE, 10 RED CLAUSE
     mixPercent.value = 60; mixType.value = 'BY DEF PAYMENT'; addMixRow();
@@ -660,10 +661,63 @@
   function generatePdf(){
     // collect values
     const get = id => (document.getElementById(id)?.value||'').toString().trim();
+    
+    // Validate 27 field format before generating PDF
+    const f27Value = get('f27');
+    if (f27Value && !/^\d+\/\d+$/.test(f27Value)) {
+      alert('27 alanı N/N formatında olmalıdır (örn: 1/3). Lütfen düzeltin ve tekrar deneyin.');
+      document.getElementById('f27')?.focus();
+      return;
+    }
+    
+    // Validate 39A field format before generating PDF
+    const f39AValue = get('f39A');
+    if (f39AValue && !/^\d{2}\/\d{2}$/.test(f39AValue)) {
+      alert('39A alanı 00/00 formatında olmalıdır (örn: 10/10). Lütfen düzeltin ve tekrar deneyin.');
+      document.getElementById('f39A')?.focus();
+      return;
+    }
+    
+    // Validate 44C and 44D dates against 31D (expiry date)
+    const f31DValue = get('f31D');
+    const f44CValue = get('f44C');
+    const f44DValue = get('f44D');
+    
+    if (f31DValue && f44CValue) {
+      const expiryDate = new Date(f31DValue);
+      const shipmentDate = new Date(f44CValue);
+      
+      if (shipmentDate > expiryDate) {
+        alert('44C - Son Yükleme Tarihi, 31D - Akreditifin vadesini geçemez. Lütfen düzeltin ve tekrar deneyin.');
+        document.getElementById('f44C')?.focus();
+        return;
+      }
+    }
+    
+    if (f31DValue && f44DValue) {
+      // Extract the "NOT LATER THAN" date from 44D field
+      const laterThanMatch = f44DValue.match(/NOT LATER THAN (\d{6})/i);
+      if (laterThanMatch) {
+        const laterThanDateStr = laterThanMatch[1]; // YYMMDD format
+        // Convert YYMMDD to Date
+        const year = 2000 + parseInt(laterThanDateStr.substring(0, 2));
+        const month = parseInt(laterThanDateStr.substring(2, 4)) - 1; // Month is 0-indexed
+        const day = parseInt(laterThanDateStr.substring(4, 6));
+        const laterThanDate = new Date(year, month, day);
+        const expiryDate = new Date(f31DValue);
+        
+        if (laterThanDate > expiryDate) {
+          alert('44D - Yükleme Süresi, 31D - Akreditifin vadesini geçemez. Lütfen düzeltin ve tekrar deneyin.');
+          document.getElementById('f44D')?.focus();
+          return;
+        }
+      }
+    }
+    
     const v = {
-      f27:get('f27'), f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
+      f27:f27Value, f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
       f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), f32B_ccy:get('f32B_ccy'), f32B_amt:get('f32B_amt'),
-      f39A:get('f39A'), f39B:get('f39B'), f39C:get('f39C'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
+      f39A:get('f39A'), f39B:get('f39B'), f39C_ccy:get('f39C_ccy'), f39C_amt:get('f39C_amt'), f39C_desc:get('f39C_desc'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
       f42C:get('f42C'), f42a:get('f42a_drawee'), f42M:get('f42M'), f42P:get('f42P'), f43P:get('f43P'), f43T:get('f43T'),
       f44A:get('f44A'), f44E:get('f44E'), f44F:get('f44F'), f44B:get('f44B'), f44C:get('f44C'), f44D:get('f44D'),
       f45A:get('f45A'), f46A:get('f46A'), f47A:get('f47A'), f49G:get('f49G'), f49H:get('f49H'), f71D:get('f71D'),
@@ -680,10 +734,10 @@
       ['51a : Applicant Bank', v.f51a],
       ['50 : Applicant', v.f50],
       ['59 : Beneficiary', v.f59],
-      ['32B: Currency Code, Amount', `${(v.f32B_ccy||'').toUpperCase()}${Number(v.f32B_amt||0).toFixed(2)}`],
+      ['32B: Currency Code, Amount', `${(v.f32B_ccy||'').toUpperCase()}${formatTurkishAmount(v.f32B_amt)}`],
       ['39A: Percentage Credit Amount Tolerance', v.f39A],
-      ['39B: Maximum Credit Amount', v.f39B],
-      ['39C: Additional Amounts Covered', v.f39C],
+      ['39B: Maximum Credit Amount', formatTurkishAmount(v.f39B)],
+      ['39C: Additional Amounts Covered', `${(v.f39C_ccy||'').toUpperCase()}${formatTurkishAmount(v.f39C_amt)} ${v.f39C_desc||''}`.trim()],
       ['41a : Available With ... By ...', `${v.f41a_bank}\n${v.f41a_role}`],
       ['42C: Drafts at ...', v.f42C],
       ['42a : Drawee', v.f42a],
@@ -728,6 +782,24 @@
     
     // Update statistics
     localStorage.setItem('last_pdf_export', new Date().toISOString());
+  }
+
+  // Convert Turkish number format (12.234,56) to standard format (12234.56)
+  function formatTurkishAmount(amount) {
+    if (!amount) return '0.00';
+    
+    const str = String(amount).trim();
+    if (!str) return '0.00';
+    
+    // Handle Turkish format: 12.234,56 -> 12234.56
+    // Remove thousands separators (dots) and replace decimal comma with dot
+    let cleaned = str.replace(/\./g, ''); // Remove dots (thousands separators)
+    cleaned = cleaned.replace(',', '.'); // Replace comma with dot for decimal
+    
+    const num = parseFloat(cleaned);
+    if (isNaN(num)) return '0.00';
+    
+    return num.toFixed(2);
   }
 
   function toIso(dateValue){

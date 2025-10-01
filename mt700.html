@@ -20,7 +20,7 @@
     <form id="mt700Form" novalidate>
       <section class="field-group">
         <label for="mt27">27 - Toplam Dizisi (Sequence of Total)</label>
-        <input id="mt27" type="text" placeholder="1/1" />
+        <input id="mt27" type="text" placeholder="1/1" pattern="^\\d+\/\\d+$" />
         <small>1/N formatında toplam sayfa bilgisini yazın (örn: 1/3).</small>
       </section>
 
@@ -44,7 +44,7 @@
 
       <section class="grid-2 field-group">
         <div>
-          <label for="mt31C">31C - Düzenlenme Tarihi (Date of Issue)</label>
+          <label for="mt31C">31C - Başlangıç/geçerli (operatif) olma tarihi (Date of Issue)</label>
           <input id="mt31C" type="date" />
           <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
         </div>
@@ -81,25 +81,40 @@
 
       <section class="field-group">
         <label for="mt32B">32B - Para Kodu, Tutar (Currency Code, Amount)</label>
-        <input id="mt32B" type="text" placeholder="USD100000.00" />
-        <small>Para kodu ve tutar bitişik yazılabilir (örn: USD100000.00).</small>
+        <input id="mt32B" type="text" placeholder="USD100.000,00" />
+        <small>Para kodu ve tutar bitişik yazılabilir. Küsürat ile yazın (örn: USD100.000,00).</small>
       </section>
 
       <section class="grid-3 field-group">
         <div>
           <label for="mt39A">39A - Tolerans (Percentage Credit Amount Tolerance)</label>
-          <input id="mt39A" type="text" placeholder="10/10" />
-          <small>Tutar toleransı: +/- biçiminde yüzde toleransı.</small>
+          <input id="mt39A" type="text" placeholder="00/00" pattern="^\\d{2}\/\\d{2}$" />
+          <small>Tutar toleransı: 00/00 formatında yüzde toleransı. Örnek: 10/10</small>
         </div>
         <div>
-          <label for="mt39B">39B - Maksimum Tutar (Maximum Credit Amount)</label>
-          <input id="mt39B" type="text" />
-          <small>Azami kredi tutarı.</small>
+          <label for="mt39B">39B - Azami Akreditif Tutarı (Maximum Credit Amount)</label>
+          <input id="mt39B" type="text" placeholder="100.000,00" />
+          <small>Azami akreditif tutarı. 32B ile aynı formatta yazın.</small>
         </div>
         <div>
-          <label for="mt39C">39C - İlave Tutarlar (Additional Amounts Covered)</label>
-          <input id="mt39C" type="text" />
-          <small>Navlun, sigorta, faiz vb.</small>
+          <label>39C - İlave Dahili Tutarlar (Additional Amounts Covered)</label>
+          <div class="grid-2" style="gap: 10px;">
+            <div>
+              <label for="mt39C_ccy">Para Cinsi</label>
+              <input id="mt39C_ccy" type="text" maxlength="3" placeholder="USD, EUR..." />
+              <small>ISO para kodu (3 harf)</small>
+            </div>
+            <div>
+              <label for="mt39C_amt">Tutar</label>
+              <input id="mt39C_amt" type="text" placeholder="5.000,00" />
+              <small>Küsürat ile yazın</small>
+            </div>
+          </div>
+          <div style="margin-top: 8px;">
+            <label for="mt39C_desc">Açıklama</label>
+            <input id="mt39C_desc" type="text" placeholder="FREIGHT, INSURANCE" />
+            <small>İlave masraf açıklaması (navlun, sigorta, faiz vb.)</small>
+          </div>
         </div>
       </section>
 
@@ -162,9 +177,9 @@
 
       <section class="grid-2 field-group">
         <div>
-          <label for="mt44F">44F - Boşaltma Limanı (Port of Discharge/Airport of Destination)</label>
+          <label for="mt44F">44F - Boşaltma Limanı/Havalimanı (Port of Discharge/Airport of Destination)</label>
           <input id="mt44F" type="text" />
-          <small>Varış limanı/havaalanı.</small>
+          <small>Boşaltma limanı/havalimanı.</small>
         </div>
         <div>
           <label for="mt44B">44B - Varış/ Teslim Yeri (Place of Final Destination)</label>
@@ -177,12 +192,12 @@
         <div>
           <label for="mt44C">44C - Son Yükleme Tarihi (Latest Date of Shipment)</label>
           <input id="mt44C" type="date" />
-          <small>Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
+          <small>31D'yi geçmemesi gerekir. Tarih seçin (PDF'de YYMMDD formatında görünecek)</small>
         </div>
         <div>
           <label for="mt44D">44D - Yükleme Periyodu (Shipment Period)</label>
           <input id="mt44D" type="text" />
-          <small>Örn: NOT EARLIER THAN ... NOT LATER THAN ...</small>
+          <small>31D'yi geçmemesi gerekir. Örn: NOT EARLIER THAN ... NOT LATER THAN ...</small>
         </div>
       </section>
 
