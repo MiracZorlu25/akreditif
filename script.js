@@ -304,15 +304,30 @@
     toggle27();
   });
   
-  // Real-time format validation for 39A field (00/00 format)
+  // 40A checkbox functionality
+  const f40ACheckboxes = document.querySelectorAll('input[name="f40A"][type="checkbox"]');
+  const f40AHidden = document.getElementById('f40A');
+  
+  function update40AValue() {
+    const selectedValues = Array.from(f40ACheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    f40AHidden.value = selectedValues.join(' ');
+  }
+  
+  f40ACheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', update40AValue);
+  });
+  
+  // Real-time format validation for 39A field (----/---- format)
   const f39A = document.getElementById('f39A');
   f39A?.addEventListener('input', (e) => {
     const value = e.target.value;
-    const isValidFormat = /^\d{2}\/\d{2}$/.test(value);
+    const isValidFormat = /^[0-9\-]{1,4}\/[0-9\-]{1,4}$/.test(value);
     
     if (value && !isValidFormat) {
       // Show error for invalid format
-      e.target.setCustomValidity('Sadece 00/00 formatında yazın (örn: 10/10)');
+      e.target.setCustomValidity('Format sadece ---- / ---- olacak (örn: 10/10, ----/5)');
       e.target.reportValidity();
     } else {
       // Clear error if format is valid
@@ -383,9 +398,9 @@
       const val = (el.value||'').toString().trim();
       if (!val) addFieldError(el, 'Bu alan boş bırakılamaz');
     });
-    // Currency code 3 letters
+    // Currency code validation (now it's a select)
     const ccy = document.getElementById('f32B_ccy').value.trim();
-    if (ccy && !/^[A-Z]{3}$/.test(ccy.toUpperCase())) addFieldError(document.getElementById('f32B_ccy'), 'Para cinsi 3 harf olmalı (örn: USD)');
+    if (!ccy) addFieldError(document.getElementById('f32B_ccy'), 'Para cinsi seçilmelidir');
     // Date validation for date inputs
     ['f31D','f44C'].forEach(id=>{
       const el = document.getElementById(id);
@@ -448,7 +463,7 @@
       }
       if (el.id==='f32B_ccy'){
         const v = el.value.trim();
-        if (v && !/^[A-Z]{3}$/.test(v.toUpperCase())) addFieldError(el,'Para cinsi 3 harf olmalı (örn: USD)');
+        if (!v) addFieldError(el,'Para cinsi seçilmelidir');
       }
       if (el.id==='f44C' || el.id==='f31D' || el.id==='f31C'){
         if (el.type === 'date') {
@@ -602,7 +617,10 @@
     attRelated.value = '46A'; attTitle.value = 'Document list extension'; addAttachment();
     // set files placeholders cannot be programmatically for security; leave empty
 
-    document.getElementById('f40A').value = 'IRREVOCABLE';
+    // Set 40A checkboxes
+    f40ACheckboxes.forEach(cb => cb.checked = false);
+    document.querySelector('input[name="f40A"][value="IRREVOCABLE"]').checked = true;
+    update40AValue();
     document.getElementById('f20').value = 'LC2025001';
     document.getElementById('f31C').value = '2025-09-01';
     document.getElementById('f40E').value = 'UCP LATEST VERSION'; toggle40E();
@@ -635,7 +653,7 @@
     document.getElementById('f44F').value = 'HAMBURG';
     document.getElementById('f44B').value = 'HAMBURG CITY';
     document.getElementById('f44C').value = '2025-10-15';
-    document.getElementById('f44D').value = 'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015';
+    document.getElementById('f44D').value = 'NOT EARLIER THAN 071120 AND NOT LATER THAN 071122';
     document.getElementById('f45A').value = 'ELECTRONICS, 1000 PCS, FOB ISTANBUL';
     document.getElementById('f46A').value = 'SIGNED COMMERCIAL INVOICE IN 5 FOLDS; PACKING LIST IN 4 FOLDS';
     document.getElementById('f47A').value = 'ALL DOCUMENTS MUST STATE L/C NUMBER';

@@ -3,6 +3,21 @@
 
   // Sayfa açılışında otomatik doldurma YOK; sadece demo ile veya sizin girişinizle doldurulur
 
+  // 40A checkbox functionality for MT700
+  const mt40ACheckboxes = document.querySelectorAll('input[name="mt40A"][type="checkbox"]');
+  const mt40AHidden = document.getElementById('mt40A');
+  
+  function updateMT40AValue() {
+    const selectedValues = Array.from(mt40ACheckboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+    mt40AHidden.value = selectedValues.join(' ');
+  }
+  
+  mt40ACheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateMT40AValue);
+  });
+
   // Mirror changes back to storage and to paired fields on the main form key names
   form.addEventListener('input', (e)=>{
     if (!(e.target instanceof HTMLElement)) return;
@@ -22,14 +37,14 @@
       }
     }
     
-    // Special validation for mt39A field (00/00 format)
+    // Special validation for mt39A field (----/---- format)
     if (e.target.id === 'mt39A') {
       const value = e.target.value;
-      const isValidFormat = /^\d{2}\/\d{2}$/.test(value);
+      const isValidFormat = /^[0-9\-]{1,4}\/[0-9\-]{1,4}$/.test(value);
       
       if (value && !isValidFormat) {
         // Show error for invalid format
-        e.target.setCustomValidity('Sadece 00/00 formatında yazın (örn: 10/10)');
+        e.target.setCustomValidity('Format sadece ---- / ---- olacak (örn: 10/10, ----/5)');
         e.target.reportValidity();
       } else {
         // Clear error if format is valid
@@ -119,7 +134,7 @@
     const syncMap = {
       'mt27': 'f27', 'mt40A': 'f40A', 'mt20': 'f20', 'mt23': 'f23', 'mt31C': 'f31C', 'mt40E': 'f40E',
       'mt31D': 'f31D', 'mt51a': 'f51a', 'mt50': 'f50', 'mt59': 'f59', 'mt32B': 'f32B_amt',
-      'mt39A': 'f39A', 'mt39B': 'f39B', 'mt39C_ccy': 'f39C_ccy', 'mt39C_amt': 'f39C_amt', 'mt39C_desc': 'f39C_desc', 'mt41a': 'f41a_bank', 'mt42C': 'f42C',
+      'mt39A': 'f39A', 'mt39B': 'f39B', 'mt39C_ccy': 'f39C_ccy', 'mt39C_amt': 'f39C_amt', 'mt39C_desc': 'f39C_desc', 'mt41a': 'f41a_bank', 'mt42C': 'f42C', 'mt32B_ccy': 'f32B_ccy', 'mt32B_amt': 'f32B_amt',
       'mt42a': 'f42a_drawee', 'mt42M': 'f42M', 'mt42P': 'f42P', 'mt43P': 'f43P', 'mt43T': 'f43T',
       'mt44A': 'f44A', 'mt44E': 'f44E', 'mt44F': 'f44F', 'mt44B': 'f44B', 'mt44C': 'f44C', 'mt44D': 'f44D',
       'mt45A': 'f45A', 'mt46A': 'f46A', 'mt47A': 'f47A', 'mt49G': 'f49G', 'mt49H': 'f49H',
@@ -160,7 +175,7 @@
       f59:'XYZ EXPORT LLC, 456 Business Ave, City, Country', f32B_ccy:'USD', f32B_amt:'100.000,00', f39A:'10/10', f39B:'110.000,00',
       f39C_ccy:'USD', f39C_amt:'5.000,00', f39C_desc:'FREIGHT, INSURANCE', f41a_bank:'NOMINATED BANK XYZ', f41a_role:'BY MIX PAYMENT', f42C:'60 DAYS FROM B/L DATE',
       f42a_drawee:'NOMINATED BANK XYZ', f42M:'%60 BY DEF PAYMENT, %30 BY ACCEPTANCE, %10 RED CLAUSE', f42P:'60 DAYS FROM B/L DATE',
-      f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'2025-10-15', f44D:'NOT EARLIER THAN 250901 AND NOT LATER THAN 251015',
+      f43P:'ALLOWED', f43T:'ALLOWED', f44A:'ISTANBUL', f44E:'MERSIN', f44F:'HAMBURG', f44B:'HAMBURG CITY', f44C:'2025-10-15', f44D:'NOT EARLIER THAN 071120 AND NOT LATER THAN 071122',
       f45A:'ELECTRONICS, 1000 PCS, FOB ISTANBUL', f46A:'SIGNED COMMERCIAL INVOICE ...', f47A:'ALL DOCUMENTS MUST STATE L/C NUMBER',
       f49G:'POST FINANCING AVAILABLE', f49H:'BANK DISCOUNT TERMS APPLY', f71D:'ALL CHARGES OUTSIDE OUR OFFICE ARE ON BENEFICIARY', f48:'21', f49:'MAY ADD',
       f58a:'CONFIRMING BANK ABC', f53a:'REIMBURSING BANK XYZ', f78:'FOLLOW STANDARD INSTRUCTIONS', f57a:'SECOND ADVISING BANK DEF', f72Z:'N/A'
@@ -185,14 +200,23 @@
       }
     });
     
-    // Special handling for mt32B (combines currency + amount)
-    const mt32BEl = document.getElementById('mt32B');
-    if (mt32BEl) {
-      const ccy = localStorage.getItem('f32B_ccy') || 'USD';
-      const amt = localStorage.getItem('f32B_amt') || '100.000,00';
-      mt32BEl.value = ccy + amt;
-      syncToMainForm('mt32B', mt32BEl.value);
+    // Special handling for mt32B (separate currency and amount fields)
+    const mt32BCcyEl = document.getElementById('mt32B_ccy');
+    const mt32BAmtEl = document.getElementById('mt32B_amt');
+    if (mt32BCcyEl && mt32BAmtEl) {
+      mt32BCcyEl.value = localStorage.getItem('f32B_ccy') || 'USD';
+      mt32BAmtEl.value = localStorage.getItem('f32B_amt') || '100.000,00';
+      syncToMainForm('mt32B_ccy', mt32BCcyEl.value);
+      syncToMainForm('mt32B_amt', mt32BAmtEl.value);
     }
+    
+    // Set 40A checkboxes
+    const savedF40A = localStorage.getItem('f40A') || 'IRREVOCABLE';
+    const selectedValues = savedF40A.split(' ');
+    mt40ACheckboxes.forEach(cb => {
+      cb.checked = selectedValues.includes(cb.value);
+    });
+    updateMT40AValue();
   });
 
   // PDF: MT700'ye özel çıktı (bold başlıklar, değerler normal; tarih alanları YYMMDD)
