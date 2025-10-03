@@ -918,7 +918,11 @@
   }
 
   // Load data when page loads
-  document.addEventListener('DOMContentLoaded', loadFormData);
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeDefaultApiKey();
+    loadFormData();
+    updateApiKeyDisplay();
+  });
 
   // Form submission handler - Kaydet butonu
   form.addEventListener('submit', (e) => {
@@ -976,6 +980,15 @@
     }
   }
 
+  // Initialize default API key if not already set
+  function initializeDefaultApiKey() {
+    const savedApiKey = localStorage.getItem('openai_api_key');
+    if (!savedApiKey && typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_OPENAI_API_KEY) {
+      localStorage.setItem('openai_api_key', CONFIG.DEFAULT_OPENAI_API_KEY);
+      console.log('Varsayılan API key otomatik olarak kaydedildi');
+    }
+  }
+
   // Load default field rules from GitHub repo (shared across all users)
   async function loadDefaultFieldRules() {
     try {
@@ -1023,11 +1036,10 @@
   async function performAICheck() {
     const savedApiKey = localStorage.getItem('openai_api_key');
     
-    // First check localStorage, then try a default demo key
+    // First check localStorage, then use default from config
     let apiKey = savedApiKey;
-    if (!apiKey) {
-      // Default demo key for testing (users should replace in admin panel)
-      apiKey = 'sk-' + 'proj-VYcD8WgolOguSfp6HxvZkhXuhP26wCS4fwRaqrPZYBufz2CsRYSS5xRHnKj0m1to1g4pwDYBF6T3BlbkFJ6g727oeOc20XhbC7CaCx15liJzwmh5kx_jf16aLcDK8yXFS_wz_Am86RkEbnV6Y4peKwpmOIEA';
+    if (!apiKey && typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_OPENAI_API_KEY) {
+      apiKey = CONFIG.DEFAULT_OPENAI_API_KEY;
     }
     
     // Always use available key without user prompts
