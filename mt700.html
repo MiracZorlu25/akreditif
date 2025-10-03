@@ -21,8 +21,7 @@
       <section class="field-group">
         <label for="mt27">27 - Toplam Dizisi (Sequence of Total)</label>
         <input id="mt27" type="text" placeholder="1/1" pattern="^\\d+\/\\d+$" />
-        <small>1/N formatında toplam sayfa bilgisini yazın (örn: 1/3).</small>
-      </section>
+1/N formatında toplam sayfa bilgisini yazın (örn: 1/3).      </section>
 
       <section class="field-group">
         <label for="mt40A">40A - Akreditifin Formu (Form of Documentary Credit)</label>
@@ -38,57 +37,48 @@
           <label><input type="checkbox" name="mt40A" value="RED-CLAUSE"> RED-CLAUSE</label>
         </div>
         <input type="hidden" id="mt40A" name="mt40A" />
-        <small>Birden fazla seçim yapılabilir (örn: IRREVOCABLE TRANSFERABLE).</small>
-      </section>
+Birden fazla seçim yapılabilir (örn: IRREVOCABLE TRANSFERABLE).      </section>
 
       <section class="field-group">
         <label for="mt20">20 - Akreditif Numarası (Documentary Credit Number)</label>
         <input id="mt20" type="text" placeholder="LC..." />
-        <small>Bankanın akreditife verdiği referans.</small>
-      </section>
+Bankanın akreditife verdiği referans.      </section>
 
       <section class="field-group">
         <label for="mt23">23 - Ön İhbara Referans (Reference to Pre-Advice)</label>
         <input id="mt23" type="text" placeholder="REF..." />
-        <small>Varsa ön ihbar referansı.</small>
-      </section>
+Varsa ön ihbar referansı.      </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt31C">31C - Başlangıç/geçerli (operatif) olma tarihi (Date of Issue)</label>
           <input id="mt31C" type="date" />
-          <small>Akreditifin düzenlenme tarihi</small>
-        </div>
+Akreditifin düzenlenme tarihi        </div>
         <div>
           <label for="mt40E">40E - Uygulanacak Kurallar (Applicable Rules)</label>
           <input id="mt40E" type="text" placeholder="UCP LATEST VERSION" />
-          <small>UCP/EUCP LATEST VERSION veya belirlediğiniz diğer kural.</small>
-        </div>
+UCP/EUCP LATEST VERSION veya belirlediğiniz diğer kural.        </div>
       </section>
 
       <section class="field-group">
         <label for="mt31D">31D - Expiry date</label>
         <input id="mt31D" type="date" />
-        <small>Akreditifin son geçerlilik tarihi</small>
-      </section>
+Akreditifin son geçerlilik tarihi      </section>
 
       <section class="field-group">
         <label for="mt51a">51a - Amir Banka (Applicant Bank)</label>
         <input id="mt51a" type="text" placeholder="SWIFT / Banka" />
-        <small>Amir/Alıcı adına akreditifi açan veya aracı banka.</small>
-      </section>
+Amir/Alıcı adına akreditifi açan veya aracı banka.      </section>
 
       <section class="field-group">
         <label for="mt50">50 - Amir/Alıcı (Applicant)</label>
         <textarea id="mt50" placeholder="Unvan, adres"></textarea>
-        <small>Amir/Alıcı tam unvan ve adresi.</small>
-      </section>
+Amir/Alıcı tam unvan ve adresi.      </section>
 
       <section class="field-group">
         <label for="mt59">59 - Lehtar (Beneficiary)</label>
         <textarea id="mt59" placeholder="Unvan, adres"></textarea>
-        <small>Lehtar/Satıcı tam unvan ve adresi.</small>
-      </section>
+Lehtar/Satıcı tam unvan ve adresi.      </section>
 
       <section class="grid-2 field-group">
         <div>
@@ -107,26 +97,22 @@
             <option value="NOK">NOK - Norveç Kronu</option>
             <option value="DKK">DKK - Danimarka Kronu</option>
           </select>
-          <small>Para birimi seçin.</small>
-        </div>
+Para birimi seçin.        </div>
         <div>
           <label for="mt32B_amt">32B - Tutar</label>
           <input id="mt32B_amt" type="text" placeholder="100.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" />
-          <small>Para formatı: 00.000,00 (örn: 100.000,00)</small>
-        </div>
+Para formatı: 00.000,00 (örn: 100.000,00)        </div>
       </section>
 
       <section class="grid-3 field-group">
         <div>
           <label for="mt39A">39A - Tolerans (Percentage Credit Amount Tolerance)</label>
           <input id="mt39A" type="text" placeholder="----/----" pattern="^[0-9\-]{1,4}\/[0-9\-]{1,4}$" />
-          <small>Format sadece ---- / ---- olacak. Örnek: 10/10, ----/5, 15/----</small>
-        </div>
+Format sadece ---- / ---- olacak. Örnek: 10/10, ----/5, 15/----        </div>
         <div>
           <label for="mt39B">39B - Azami Akreditif Tutarı (Maximum Credit Amount)</label>
           <input id="mt39B" type="text" placeholder="100.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" />
-          <small>Para formatı: 00.000,00 (örn: 100.000,00 veya 120.000,00)</small>
-        </div>
+Para formatı: 00.000,00 (örn: 100.000,00 veya 120.000,00)        </div>
         <div>
           <label>39C - İlave Dahili Tutarlar (Additional Amounts Covered)</label>
           <div class="grid-2" style="gap: 10px;">
@@ -146,189 +132,160 @@
                 <option value="NOK">NOK - Norveç Kronu</option>
                 <option value="DKK">DKK - Danimarka Kronu</option>
               </select>
-              <small>Para birimi seçin</small>
-            </div>
+Para birimi seçin            </div>
             <div>
               <label for="mt39C_amt">Tutar</label>
               <input id="mt39C_amt" type="text" placeholder="5.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" />
-              <small>Para formatı: 00.000,00 (örn: 5.000,00)</small>
-            </div>
+Para formatı: 00.000,00 (örn: 5.000,00)            </div>
           </div>
           <div style="margin-top: 8px;">
             <label for="mt39C_desc">Açıklama</label>
             <input id="mt39C_desc" type="text" placeholder="FREIGHT, INSURANCE" />
-            <small>İlave masraf açıklaması (navlun, sigorta, faiz vb.)</small>
-          </div>
+İlave masraf açıklaması (navlun, sigorta, faiz vb.)          </div>
         </div>
       </section>
 
       <section class="field-group">
         <label for="mt41a">41a - Kullanılacak Banka/Görev (Available With ... By ...)</label>
         <input id="mt41a" type="text" placeholder="ISBKTRISXXX BY PAYMENT" />
-        <small>Banka adı/SWIFT ve görev (BY PAYMENT/DEF PAYMENT/ACCEPTANCE/NEGOTIATION).</small>
-      </section>
+Banka adı/SWIFT ve görev (BY PAYMENT/DEF PAYMENT/ACCEPTANCE/NEGOTIATION).      </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt42C">42C - Poliçe Vadesi (Drafts at ...)</label>
           <input id="mt42C" type="text" placeholder="AT SIGHT veya 90 DAYS FROM B/L DATE" />
-          <small>Vade yoksa SIGHT/AT SIGHT, varsa gün ve dayanak.</small>
-        </div>
+Vade yoksa SIGHT/AT SIGHT, varsa gün ve dayanak.        </div>
         <div>
           <label for="mt42a">42a - Drawee (Poliçenin Üzerine Çekileceği Taraf)</label>
           <input id="mt42a" type="text" placeholder="Banka/SWIFT" />
-          <small>Belgeleri uygun bulduktan sonra ödeyecek banka.</small>
-        </div>
+Belgeleri uygun bulduktan sonra ödeyecek banka.        </div>
       </section>
 
       <section class="field-group">
         <label for="mt42M">42M - Karışık Ödeme Detayları (Mixed Payment Details)</label>
         <input id="mt42M" type="text" placeholder="%20 BY PAYMENT, %30 BY DEF PAYMENT..." />
-        <small>Toplam %100 olacak şekilde yüzdeler ve yöntemler.</small>
-      </section>
+Toplam %100 olacak şekilde yüzdeler ve yöntemler.      </section>
 
       <section class="field-group">
         <label for="mt42P">42P - İştira/Vadeli Ödeme Detayları (Negotiation/Deferred Payment)</label>
         <input id="mt42P" type="text" placeholder="90 DAYS FROM B/L DATE" />
-        <small>BY DEF PAYMENT/BY NEGOTIATION seçiliyse vade şartı.</small>
-      </section>
+BY DEF PAYMENT/BY NEGOTIATION seçiliyse vade şartı.      </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt43P">43P - Kısmi Yüklemeler (Partial Shipments)</label>
           <input id="mt43P" type="text" placeholder="ALLOWED / NOT ALLOWED" />
-          <small>İzin var/yok/şartlı.</small>
-        </div>
+İzin var/yok/şartlı.        </div>
         <div>
           <label for="mt43T">43T - Aktarma (Transhipment)</label>
           <input id="mt43T" type="text" placeholder="ALLOWED / NOT ALLOWED" />
-          <small>İzin var/yok/şartlı.</small>
-        </div>
+İzin var/yok/şartlı.        </div>
       </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt44A">44A - Yükleme Öncesi Yer (Place of Taking in Charge/Dispatch from)</label>
           <input id="mt44A" type="text" />
-          <small>Liman/havaalanı dışı çıkış yeri (karayolu/depodan teslim vb.).</small>
-        </div>
+Liman/havaalanı dışı çıkış yeri (karayolu/depodan teslim vb.).        </div>
         <div>
           <label for="mt44E">44E - Yükleme Limanı (Port of Loading/Airport of Departure)</label>
           <input id="mt44E" type="text" />
-          <small>Çıkış limanı/havaalanı.</small>
-        </div>
+Çıkış limanı/havaalanı.        </div>
       </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt44F">44F - Boşaltma Limanı/Havalimanı (Port of Discharge/Airport of Destination)</label>
           <input id="mt44F" type="text" />
-          <small>Boşaltma limanı/havalimanı.</small>
-        </div>
+Boşaltma limanı/havalimanı.        </div>
         <div>
           <label for="mt44B">44B - Varış/ Teslim Yeri (Place of Final Destination)</label>
           <input id="mt44B" type="text" />
-          <small>Varış/teslim yeri.</small>
-        </div>
+Varış/teslim yeri.        </div>
       </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt44C">44C - Son Yükleme Tarihi (Latest Date of Shipment)</label>
           <input id="mt44C" type="date" />
-          <small>31D'yi geçmemesi gerekir.</small>
-        </div>
+31D'yi geçmemesi gerekir.        </div>
         <div>
           <label for="mt44D">44D - Yükleme Periyodu (Shipment Period)</label>
           <input id="mt44D" type="text" placeholder="NOT EARLIER THAN 071120 AND NOT LATER THAN 071122" />
-          <small>Yüklemenin ne kadar sürede, zaman aralığında yapılacağı belirtilir. Sürenin nereden başladığı ve zaman aralığının tarih veya hesaplama yöntemlerinin verilmesi gerekir.<br>
+Yüklemenin ne kadar sürede, zaman aralığında yapılacağı belirtilir. Sürenin nereden başladığı ve zaman aralığının tarih veya hesaplama yöntemlerinin verilmesi gerekir.<br>
           <strong>Örnekler:</strong><br>
           • NOT EARLIER THAN 071120 AND NOT LATER THAN 071122<br>
           • BETWEEN 10.01.2025 AND 14.03.2025<br>
           • NOT BEFORE 15.01.2025<br>
-          • FROM 01.02.2025 TO 28.02.2025</small>
-        </div>
+          • FROM 01.02.2025 TO 28.02.2025        </div>
       </section>
 
       <section class="field-group">
         <label for="mt45A">45A - Mal/Hizmet Tanımı (Description of Goods and/or Services)</label>
         <textarea id="mt45A" placeholder="Detaylar"></textarea>
-        <small>Miktar, birim fiyat, teslim şekli, Proforma no vb.</small>
-      </section>
+Miktar, birim fiyat, teslim şekli, Proforma no vb.      </section>
 
       <section class="field-group">
         <label for="mt46A">46A - Gerekli Belgeler (Documents Required)</label>
         <textarea id="mt46A" placeholder="Belge listesi"></textarea>
-        <small>İstenen her belgenin adı, adedi ve şartları.</small>
-      </section>
+İstenen her belgenin adı, adedi ve şartları.      </section>
 
       <section class="field-group">
         <label for="mt47A">47A - İlave Şartlar (Additional Conditions)</label>
         <textarea id="mt47A" placeholder="Şartlar"></textarea>
-        <small>Belge üzerinde olması gereken ibareler ve işlemsel koşullar.</small>
-      </section>
+Belge üzerinde olması gereken ibareler ve işlemsel koşullar.      </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt49G">49G - Lehtar için Özel Ödeme (Special Payment Conditions for Beneficiary)</label>
           <textarea id="mt49G"></textarea>
-          <small>Postfinansman/iskonto vb. varsa yazın.</small>
-        </div>
+Postfinansman/iskonto vb. varsa yazın.        </div>
         <div>
           <label for="mt49H">49H - Alan Banka için Özel Ödeme (Special Payment Conditions for Receiving Bank)</label>
           <textarea id="mt49H"></textarea>
-          <small>Banka için özel ödeme şartları.</small>
-        </div>
+Banka için özel ödeme şartları.        </div>
       </section>
 
       <section class="field-group">
         <label for="mt71D">71D - Masraflar (Charges)</label>
         <textarea id="mt71D"></textarea>
-        <small>Masraf paylaşımı (örn: all charges ... are on beneficiary).</small>
-      </section>
+Masraf paylaşımı (örn: all charges ... are on beneficiary).      </section>
 
       <section class="grid-3 field-group">
         <div>
           <label for="mt48">48 - İbraz Süresi (Period for Presentation in Days)</label>
           <input id="mt48" type="text" />
-          <small>Gün cinsinden ibraz süresi.</small>
-        </div>
+Gün cinsinden ibraz süresi.        </div>
         <div>
           <label for="mt49">49 - Teyit Talimatı (Confirmation Instructions)</label>
           <input id="mt49" type="text" placeholder="WITHOUT / CONFIRM / MAY ADD" />
-          <small>Teyitsiz, teyitli veya “masrafı lehtar öderse teyit eklenebilir”.</small>
-        </div>
+Teyitsiz, teyitli veya “masrafı lehtar öderse teyit eklenebilir”.        </div>
         <div>
           <label for="mt58a">58a - Teyit Talep Edilen Taraf (Requested Confirmation Party)</label>
           <input id="mt58a" type="text" />
-          <small>Teyit vermesi talep edilen banka.</small>
-        </div>
+Teyit vermesi talep edilen banka.        </div>
       </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt53a">53a - Tazmin Bankası (Reimbursing Bank)</label>
           <input id="mt53a" type="text" />
-          <small>Ödemeyi karşılayacak banka (varsa).</small>
-        </div>
+Ödemeyi karşılayacak banka (varsa).        </div>
         <div>
           <label for="mt78">78 - Ödeme/Kabul/İştira Bankasına Talimat (Instructions to the Paying/Accepting/Negotiating Bank)</label>
           <input id="mt78" type="text" />
-          <small>Ödeme/kabul/iştira bankasına özel yönergeler.</small>
-        </div>
+Ödeme/kabul/iştira bankasına özel yönergeler.        </div>
       </section>
 
       <section class="grid-2 field-group">
         <div>
           <label for="mt57a">57a - İkinci İhbar Bankası (Second Advising Bank)</label>
           <input id="mt57a" type="text" />
-          <small>Lehtara ihbar edecek ikinci banka.</small>
-        </div>
+Lehtara ihbar edecek ikinci banka.        </div>
         <div>
           <label for="mt72Z">72Z - Gönderen Alıcıya Bilgi (Sender to Receiver Information)</label>
           <input id="mt72Z" type="text" />
-          <small>Serbest mesaj alanı (gerektiğinde).</small>
-        </div>
+Serbest mesaj alanı (gerektiğinde).        </div>
       </section>
 
       <footer class="form-actions">

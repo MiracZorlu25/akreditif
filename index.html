@@ -23,7 +23,6 @@
       <section class="field-group">
         <label for="f27"><span class="req">M</span> 27 - Teklif ve ekleri (adet olarak)</label>
         <input id="f27" name="f27" type="text" inputmode="numeric" pattern="^\\d+\/\\d+$" value="1/1" placeholder="örn: 1/3" required />
-        <small>1/1'den farklı ise yazılı rakam kadar ek dosya istenir. Ekler Word, Excel veya PDF olabilir. Sadece N/N formatında yazılmalıdır.</small>
       </section>
 
       <!-- 27 - Ek Sayfalar Ayrımı (MT701 ve diğer ekler) -->
@@ -40,7 +39,6 @@
           <input id="attTitle" type="text" placeholder="Ek başlığı veya kısa açıklama" />
           <button type="button" id="addAttachment">Ek Ekle</button>
         </div>
-        <small>1/1'den farklı ise burada ek sayfaları listeleyin. Her ek sayfa için ayrı dosya yükleyin (PDF/Word/Excel/Görsel/TXT).</small>
         <input type="hidden" id="f27_list" name="f27_list" />
       </section>
 
@@ -59,7 +57,6 @@
           <label><input type="checkbox" name="f40A" value="RED-CLAUSE"> RED-CLAUSE</label>
         </div>
         <input type="hidden" id="f40A" name="f40A" required />
-        <small>Bu alana akreditifin yapısal türü yazılır. Birden fazla seçim yapılabilir (örn: IRREVOCABLE TRANSFERABLE).</small>
       </section>
 
       <!-- 20 - Akreditif numarası [M but left blank] -->
@@ -90,14 +87,12 @@
           <option value="OTHER">OTHER</option>
         </select>
         <input id="f40E_other" name="f40E_other" type="text" class="hidden" placeholder="Diğer kuralı yazınız" />
-        <small>Not: UCP, ICC'nin akreditiflere ilişkin yeknesak kurallarıdır.</small>
       </section>
 
       <!-- 31D - Akreditifin vadesi [M] -->
       <section class="field-group">
         <label for="f31D"><span class="req">M</span> 31D - Expiry date</label>
         <input id="f31D" name="f31D" type="date" required />
-        <small>Akreditifin son geçerlilik tarihi</small>
       </section>
 
       <!-- 51a - Amir/Alıcının bankası [O] -->
@@ -110,14 +105,12 @@
       <section class="field-group">
         <label for="f50"><span class="req">M</span> 50 - Amir/Alıcı</label>
         <textarea id="f50" name="f50" required placeholder="Tam isim ve adres"></textarea>
-        <small>Resmi ticari unvanı ve posta adresini tam yazın. Ülke adı ve iletişim bilgileri (tel/faks/e-posta) varsa ekleyin.</small>
       </section>
 
       <!-- 59 - Lehtar/Satıcı [M] -->
       <section class="field-group">
         <label for="f59"><span class="req">M</span> 59 - Lehtar/Satıcı</label>
         <textarea id="f59" name="f59" required placeholder="Tam isim ve adres"></textarea>
-        <small>Lehtarın ticari unvanı ve adresi. İmza yetkilisi ve IBAN/Vergi No bilgilerini eklemek süreci hızlandırır.</small>
       </section>
 
       <!-- 32B - Para Cinsi ve Tutarı [M] -->
@@ -138,12 +131,10 @@
             <option value="NOK">NOK - Norveç Kronu</option>
             <option value="DKK">DKK - Danimarka Kronu</option>
           </select>
-          <small>Para birimi seçin. Her para kodunun karşısında açık tanımı yer alır.</small>
         </div>
         <div>
           <label for="f32B_amt"><span class="req">M</span> 32B - Tutar</label>
           <input id="f32B_amt" name="f32B_amt" type="text" placeholder="10.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" required />
-          <small>Para formatı: 00.000,00 (örn: 10.000,00 veya 120.000,00). Tolerans hariç net tutar.</small>
         </div>
       </section>
 
@@ -152,12 +143,10 @@
         <div>
           <label for="f39A"><span class="opt">O</span> 39A - Tolerans (+/-)</label>
           <input id="f39A" name="f39A" type="text" placeholder="----/----" pattern="^[0-9\-]{1,4}\/[0-9\-]{1,4}$" />
-          <small>Format sadece ---- / ---- olacak. Örnek: 10/10, ----/5, 15/----</small>
         </div>
         <div>
           <label for="f39B"><span class="opt">O</span> 39B - Azami Akreditif Tutarı</label>
           <input id="f39B" name="f39B" type="text" placeholder="10.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" />
-          <small>Para formatı: 00.000,00 (örn: 10.000,00 veya 120.000,00)</small>
         </div>
         <div>
           <label><span class="opt">O</span> 39C - İlave Dahili Tutarlar</label>
@@ -178,18 +167,15 @@
                 <option value="NOK">NOK - Norveç Kronu</option>
                 <option value="DKK">DKK - Danimarka Kronu</option>
               </select>
-              <small>Para birimi seçin</small>
             </div>
             <div>
               <label for="f39C_amt">Tutar</label>
               <input id="f39C_amt" name="f39C_amt" type="text" placeholder="10.000,00" pattern="^[0-9]{1,3}(\.[0-9]{3})*,[0-9]{2}$" />
-              <small>Para formatı: 00.000,00 (örn: 10.000,00 veya 120.000,00)</small>
             </div>
           </div>
           <div style="margin-top: 8px;">
             <label for="f39C_desc">Açıklama</label>
             <input id="f39C_desc" name="f39C_desc" type="text" placeholder="FREIGHT, INSURANCE" />
-            <small>İlave masraf açıklaması (navlun, sigorta, faiz vb.)</small>
           </div>
         </div>
       </section>
@@ -231,7 +217,6 @@
           </select>
           <button type="button" id="addMix">Satır Ekle</button>
         </div>
-        <small>Örnek: %20 BY PAYMENT, %30 BY DEF PAYMENT, %40 BY ACCEPTANCE, %10 RED CLAUSE. Toplam: <b id="mixSum">0%</b></small>
         <input type="hidden" id="f42M" name="f42M" />
       </section>
 
@@ -250,7 +235,6 @@
           <option>İzin yok</option>
           <option>Şartlı izin var</option>
         </select>
-        <small>Kısmi yüklemeye izin verilip verilmeyeceğini belirtir. "İzin var" seçilirse birden fazla sevkiyat yapılabilir.</small>
       </section>
 
       <!-- 43T - Aktarma [O] -->
@@ -262,53 +246,46 @@
           <option value="İzin yok">İzin yok</option>
           <option value="Şartlı izin var">Şartlı izin var</option>
         </select>
-        <small>Akreditif konusu sevkiyat yolda araç değiştirebilecekse bu alana "izin var" veya "izin yok" veya "şartlı izin var" şeklinde yazılır. Şartlı izin var bilgisi yazılmışsa şartı burada veya 47A alanında verilmesi gerekir.</small>
-      </section>
+Akreditif konusu sevkiyat yolda araç değiştirebilecekse bu alana "izin var" veya "izin yok" veya "şartlı izin var" şeklinde yazılır. Şartlı izin var bilgisi yazılmışsa şartı burada veya 47A alanında verilmesi gerekir.      </section>
 
       <!-- 44A/44E/44F/44B [O] -->
       <section class="grid-2 field-group">
         <div>
           <label for="f44A"><span class="opt">O</span> 44A - Malı Teslim Alma Yeri (çıkış)</label>
           <input id="f44A" name="f44A" type="text" placeholder="GAZIANTEP/KAYSERI/ANKARA" />
-          <small>Liman/havaalanı dışı çıkış yeri (karayolu/depodan teslim vb.).</small>
-        </div>
+Liman/havaalanı dışı çıkış yeri (karayolu/depodan teslim vb.).        </div>
         <div>
           <label for="f44E"><span class="opt">O</span> 44E - Yükleme Limanı/Havalimanı</label>
           <input id="f44E" name="f44E" type="text" placeholder="MERSİN, İZMİR, PIRE" />
-          <small>Çıkış limanı/havaalanı.</small>
-        </div>
+Çıkış limanı/havaalanı.        </div>
       </section>
       <section class="grid-2 field-group">
         <div>
           <label for="f44F"><span class="opt">O</span> 44F - Boşaltma Limanı/Havalimanı</label>
           <input id="f44F" name="f44F" type="text" placeholder="PIRE, MARSILYA, HAMBURG" />
-          <small>Boşaltma limanı/havalimanı.</small>
-        </div>
+Boşaltma limanı/havalimanı.        </div>
         <div>
           <label for="f44B"><span class="opt">O</span> 44B - Teslim Etme Yeri (varış)</label>
           <input id="f44B" name="f44B" type="text" placeholder="BASEL/MUNCHEN/PARIS" />
-          <small>Varış/teslim yeri.</small>
-        </div>
+Varış/teslim yeri.        </div>
       </section>
 
       <!-- 44C - Son Yükleme Tarihi [O] -->
       <section class="field-group">
         <label for="f44C"><span class="opt">O</span> 44C - Son Yükleme Tarihi</label>
         <input id="f44C" name="f44C" type="date" />
-        <small>31D'yi geçmemesi gerekir.</small>
-      </section>
+31D'yi geçmemesi gerekir.      </section>
 
       <!-- 44D - Yükleme Süresi [O] -->
       <section class="field-group">
         <label for="f44D"><span class="opt">O</span> 44D - Yükleme Süresi/Periyodu</label>
         <input id="f44D" name="f44D" type="text" placeholder="NOT EARLIER THAN 071120 AND NOT LATER THAN 071122" />
-        <small>Yüklemenin ne kadar sürede, zaman aralığında yapılacağı belirtilir. Sürenin nereden başladığı ve zaman aralığının tarih veya hesaplama yöntemlerinin verilmesi gerekir.<br>
+Yüklemenin ne kadar sürede, zaman aralığında yapılacağı belirtilir. Sürenin nereden başladığı ve zaman aralığının tarih veya hesaplama yöntemlerinin verilmesi gerekir.<br>
         <strong>Örnekler:</strong><br>
         • NOT EARLIER THAN 071120 AND NOT LATER THAN 071122<br>
         • BETWEEN 10.01.2025 AND 14.03.2025<br>
         • NOT BEFORE 15.01.2025<br>
-        • FROM 01.02.2025 TO 28.02.2025</small>
-      </section>
+        • FROM 01.02.2025 TO 28.02.2025      </section>
 
       <!-- 45A - Mal ve Hizmetlerin Tanımı [O] -->
       <section class="field-group">
@@ -333,13 +310,11 @@
         <div>
           <label for="f49G"><span class="opt">O</span> 49G - Lehtar için Özel Ödeme Şartları</label>
           <textarea id="f49G" name="f49G" placeholder="Postfinansman/iskonto şartları"></textarea>
-          <small>Postfinansman/iskonto vb. varsa yazın.</small>
-        </div>
+Postfinansman/iskonto vb. varsa yazın.        </div>
         <div>
           <label for="f49H"><span class="opt">O</span> 49H - Alan Banka için Özel Ödeme Şartları</label>
           <textarea id="f49H" name="f49H" placeholder="Banka için özel şartlar"></textarea>
-          <small>Banka için özel ödeme şartları.</small>
-        </div>
+Banka için özel ödeme şartları.        </div>
       </section>
 
       <!-- 71D - Masraflar [O] -->
@@ -363,12 +338,10 @@
           <option value="CONFIRM">CONFIRM</option>
           <option value="MAY ADD">MAY ADD</option>
         </select>
-        <small>
           Akreditife başka bir bankanın teyit verip vermeyeceğini belirtir.
           Teyit isteniyorsa “Teyitli” (CONFIRM), istenmiyorsa “Teyitsiz” (WITHOUT) seçiniz.
           Masrafları lehtar öderse teyit eklenebilsin isteniyorsa “MAY ADD” seçiniz.
           Örnekler: WITHOUT / CONFIRM / MAY ADD
-        </small>
       </section>
 
       <!-- 58a - Teyit Talep Edilen Taraf [O] -->
