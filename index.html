@@ -164,8 +164,21 @@
           <div class="grid-2" style="gap: 10px;">
             <div>
               <label for="f39C_ccy">Para Cinsi</label>
-              <input id="f39C_ccy" name="f39C_ccy" type="text" maxlength="3" placeholder="USD, EUR..." />
-              <small>ISO para kodu (3 harf)</small>
+              <select id="f39C_ccy" name="f39C_ccy">
+                <option value="">Seçiniz</option>
+                <option value="TRY">TRY - Türk Lirası</option>
+                <option value="USD">USD - Amerikan Doları</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - İngiliz Sterlini</option>
+                <option value="CAD">CAD - Kanada Doları</option>
+                <option value="CHF">CHF - İsviçre Frangı</option>
+                <option value="JPY">JPY - Japon Yeni</option>
+                <option value="AUD">AUD - Avustralya Doları</option>
+                <option value="SEK">SEK - İsveç Kronu</option>
+                <option value="NOK">NOK - Norveç Kronu</option>
+                <option value="DKK">DKK - Danimarka Kronu</option>
+              </select>
+              <small>Para birimi seçin</small>
             </div>
             <div>
               <label for="f39C_amt">Tutar</label>
