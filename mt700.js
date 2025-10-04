@@ -658,7 +658,18 @@
   }
 
   // Load data when page loads
-  document.addEventListener('DOMContentLoaded', loadFormData);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFormData();
+    
+    // Disable validation for mt51a field (optional field)
+    const mt51a = document.getElementById('mt51a');
+    if (mt51a) {
+      mt51a.setCustomValidity(''); // Clear any validation message
+      mt51a.addEventListener('invalid', (e) => {
+        e.preventDefault(); // Prevent validation
+      });
+    }
+  });
 
   // Form submission handler - Kaydet butonu
   form.addEventListener('submit', (e) => {

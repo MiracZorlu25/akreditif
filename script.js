@@ -96,6 +96,14 @@
 
   const f58a = document.getElementById('f58a');
   const f51a = document.getElementById('f51a');
+  
+  // Disable validation for 51a field (optional field)
+  if (f51a) {
+    f51a.setCustomValidity(''); // Clear any validation message
+    f51a.addEventListener('invalid', (e) => {
+      e.preventDefault(); // Prevent validation
+    });
+  }
   const f41a_bank = document.getElementById('f41a_bank');
 
   // Contextual helper texts under fields
