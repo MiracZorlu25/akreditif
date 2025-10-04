@@ -327,10 +327,22 @@
       }
     }
     
+    // Get current currency values from MT700 form (not localStorage)
+    const getCurrentCurrency = (selectId, otherId) => {
+      const selectEl = document.getElementById(selectId);
+      const otherEl = document.getElementById(otherId);
+      if (selectEl && selectEl.value === 'OTHER' && otherEl) {
+        return otherEl.value.toUpperCase();
+      }
+      return selectEl ? selectEl.value : get(selectId);
+    };
+    
     const v = {
       f27:f27Value, f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
-      f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), f32B_ccy:get('f32B_ccy'), f32B_amt:get('f32B_amt'),
-      f39A:get('f39A'), f39B:get('f39B'), f39C_ccy:get('f39C_ccy'), f39C_amt:get('f39C_amt'), f39C_desc:get('f39C_desc'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
+      f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), 
+      f32B_ccy:getCurrentCurrency('mt32B_ccy', 'mt32B_ccy_other'), f32B_amt:get('f32B_amt'),
+      f39A:get('f39A'), f39B:get('f39B'), 
+      f39C_ccy:getCurrentCurrency('mt39C_ccy', 'mt39C_ccy_other'), f39C_amt:get('f39C_amt'), f39C_desc:get('f39C_desc'), f41a_bank:get('f41a_bank'), f41a_role:get('f41a_role'),
       f42C:get('f42C'), f42a:get('f42a_drawee'), f42M:get('f42M'), f42P:get('f42P'), f43P:get('f43P'), f43T:get('f43T'),
       f44A:get('f44A'), f44E:get('f44E'), f44F:get('f44F'), f44B:get('f44B'), f44C:get('f44C'), f44D:get('f44D'),
       f45A:get('f45A'), f46A:get('f46A'), f47A:get('f47A'), f49G:get('f49G'), f49H:get('f49H'), f71D:get('f71D'),
@@ -557,24 +569,90 @@
     }
   });
 
-  // Synchronize currency between 32B and 39C
+  // Handle "Other" currency option and synchronize between 32B and 39C
   const mt32B_ccy = document.getElementById('mt32B_ccy');
+  const mt32B_ccy_other = document.getElementById('mt32B_ccy_other');
   const mt39C_ccy = document.getElementById('mt39C_ccy');
+  const mt39C_ccy_other = document.getElementById('mt39C_ccy_other');
   
-  if (mt32B_ccy && mt39C_ccy) {
-    // When 32B currency changes, update 39C currency
+  // Function to get actual currency value (from dropdown or manual input)
+  function getCurrencyValue(selectElement, otherElement) {
+    if (selectElement.value === 'OTHER') {
+      return otherElement.value.toUpperCase();
+    }
+    return selectElement.value;
+  }
+  
+  // Function to set currency value (to dropdown or manual input)
+  function setCurrencyValue(selectElement, otherElement, value) {
+    // Check if value exists in dropdown options
+    const option = Array.from(selectElement.options).find(opt => opt.value === value);
+    if (option && value !== 'OTHER') {
+      selectElement.value = value;
+      otherElement.style.display = 'none';
+      otherElement.value = '';
+    } else if (value && value !== '') {
+      // Use manual input for custom currency
+      selectElement.value = 'OTHER';
+      otherElement.style.display = 'block';
+      otherElement.value = value;
+    }
+  }
+  
+  if (mt32B_ccy && mt39C_ccy && mt32B_ccy_other && mt39C_ccy_other) {
+    // Show/hide manual input for 32B
     mt32B_ccy.addEventListener('change', (e) => {
-      if (e.target.value) {
-        mt39C_ccy.value = e.target.value;
-        console.log(`MT700 32B para birimi değişti: ${e.target.value} -> 39C'ye kopyalandı`);
+      if (e.target.value === 'OTHER') {
+        mt32B_ccy_other.style.display = 'block';
+        mt32B_ccy_other.focus();
+      } else {
+        mt32B_ccy_other.style.display = 'none';
+        mt32B_ccy_other.value = '';
+        
+        // Sync to 39C if not empty
+        if (e.target.value) {
+          setCurrencyValue(mt39C_ccy, mt39C_ccy_other, e.target.value);
+          console.log(`MT700 32B para birimi değişti: ${e.target.value} -> 39C'ye kopyalandı`);
+        }
       }
     });
     
-    // When 39C currency changes, update 32B currency
+    // Show/hide manual input for 39C
     mt39C_ccy.addEventListener('change', (e) => {
-      if (e.target.value) {
-        mt32B_ccy.value = e.target.value;
-        console.log(`MT700 39C para birimi değişti: ${e.target.value} -> 32B'ye kopyalandı`);
+      if (e.target.value === 'OTHER') {
+        mt39C_ccy_other.style.display = 'block';
+        mt39C_ccy_other.focus();
+      } else {
+        mt39C_ccy_other.style.display = 'none';
+        mt39C_ccy_other.value = '';
+        
+        // Sync to 32B if not empty
+        if (e.target.value) {
+          setCurrencyValue(mt32B_ccy, mt32B_ccy_other, e.target.value);
+          console.log(`MT700 39C para birimi değişti: ${e.target.value} -> 32B'ye kopyalandı`);
+        }
+      }
+    });
+    
+    // Sync manual input from 32B to 39C
+    mt32B_ccy_other.addEventListener('input', (e) => {
+      const value = e.target.value.toUpperCase();
+      e.target.value = value; // Convert to uppercase
+      
+      if (value.length >= 3) {
+        setCurrencyValue(mt39C_ccy, mt39C_ccy_other, value);
+        console.log(`MT700 32B manuel para birimi: ${value} -> 39C'ye kopyalandı`);
+      }
+    });
+    
+    // Sync manual input from 39C to 32B
+    mt39C_ccy_other.addEventListener('input', (e) => {
+      const value = e.target.value.toUpperCase();
+      e.target.value = value; // Convert to uppercase
+      
+      if (value.length >= 3) {
+        setCurrencyValue(mt32B_ccy, mt32B_ccy_other, value);
+        console.log(`MT700 39C manuel para birimi: ${value} -> 32B'ye kopyalandı`);
       }
     });
   }
