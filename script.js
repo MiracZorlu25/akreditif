@@ -362,6 +362,28 @@
     }
   });
   
+  // Synchronize currency between 32B and 39C
+  const f32B_ccy = document.getElementById('f32B_ccy');
+  const f39C_ccy = document.getElementById('f39C_ccy');
+  
+  if (f32B_ccy && f39C_ccy) {
+    // When 32B currency changes, update 39C currency
+    f32B_ccy.addEventListener('change', (e) => {
+      if (e.target.value) {
+        f39C_ccy.value = e.target.value;
+        console.log(`32B para birimi değişti: ${e.target.value} -> 39C'ye kopyalandı`);
+      }
+    });
+    
+    // When 39C currency changes, update 32B currency
+    f39C_ccy.addEventListener('change', (e) => {
+      if (e.target.value) {
+        f32B_ccy.value = e.target.value;
+        console.log(`39C para birimi değişti: ${e.target.value} -> 32B'ye kopyalandı`);
+      }
+    });
+  }
+  
   // Real-time date validation for 31C, 44C and 44D fields against 31D
   const f31D = document.getElementById('f31D');
   const f31C = document.getElementById('f31C');

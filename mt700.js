@@ -557,6 +557,28 @@
     }
   });
 
+  // Synchronize currency between 32B and 39C
+  const mt32B_ccy = document.getElementById('mt32B_ccy');
+  const mt39C_ccy = document.getElementById('mt39C_ccy');
+  
+  if (mt32B_ccy && mt39C_ccy) {
+    // When 32B currency changes, update 39C currency
+    mt32B_ccy.addEventListener('change', (e) => {
+      if (e.target.value) {
+        mt39C_ccy.value = e.target.value;
+        console.log(`MT700 32B para birimi değişti: ${e.target.value} -> 39C'ye kopyalandı`);
+      }
+    });
+    
+    // When 39C currency changes, update 32B currency
+    mt39C_ccy.addEventListener('change', (e) => {
+      if (e.target.value) {
+        mt32B_ccy.value = e.target.value;
+        console.log(`MT700 39C para birimi değişti: ${e.target.value} -> 32B'ye kopyalandı`);
+      }
+    });
+  }
+
   // Load data when page loads
   document.addEventListener('DOMContentLoaded', loadFormData);
 
