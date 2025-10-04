@@ -438,29 +438,24 @@
   
   // Auto-format currency fields to Turkish format (000.000.000,00)
   const currencyFields = ['f32B_amt', 'f39B', 'f39C_amt'];
+  function applyCurrencyFormat(el){
+    if (!el) return;
+    const formatted = formatToTurkishCurrency(el.value);
+    if (formatted && formatted !== el.value) {
+      el.value = formatted;
+    }
+  }
   currencyFields.forEach(fieldId => {
     const field = document.getElementById(fieldId);
-    if (field) {
-      // Format on blur (when user leaves the field)
-      field.addEventListener('blur', (e) => {
-        const formatted = formatToTurkishCurrency(e.target.value);
-        if (formatted && formatted !== e.target.value) {
-          e.target.value = formatted;
-          console.log(`Formatted ${fieldId}: ${e.target.value} -> ${formatted}`);
-        }
-      });
-      
-      // Also format on Enter key
-      field.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const formatted = formatToTurkishCurrency(e.target.value);
-          if (formatted && formatted !== e.target.value) {
-            e.target.value = formatted;
-            console.log(`Formatted ${fieldId} on Enter: ${formatted}`);
-          }
-        }
-      });
-    }
+    if (!field) return;
+    // Format on blur (when user leaves the field)
+    field.addEventListener('blur', (e) => applyCurrencyFormat(e.target));
+    // Format on change
+    field.addEventListener('change', (e) => applyCurrencyFormat(e.target));
+    // Also format on Enter key
+    field.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') applyCurrencyFormat(e.target);
+    });
   });
   
   // Handle "Other" currency option and synchronize between 32B and 39C
