@@ -103,26 +103,43 @@
     f51a.removeAttribute('required');
     f51a.setCustomValidity(''); // Clear any validation message
     
-    // Prevent all validation events
+    // Prevent all validation events and messages
     f51a.addEventListener('invalid', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
+      f51a.setCustomValidity(''); // Clear message immediately
       return false;
+    });
+    
+    // Prevent validation on form events
+    f51a.addEventListener('change', () => {
+      f51a.setCustomValidity('');
+      f51a.removeAttribute('required');
     });
     
     // Clear validation on input
     f51a.addEventListener('input', () => {
       f51a.setCustomValidity('');
+      f51a.removeAttribute('required');
     });
     
     // Clear validation on blur
     f51a.addEventListener('blur', () => {
       f51a.setCustomValidity('');
+      f51a.removeAttribute('required');
     });
     
-    // Override checkValidity to always return true
+    // Clear validation on focus
+    f51a.addEventListener('focus', () => {
+      f51a.setCustomValidity('');
+      f51a.removeAttribute('required');
+    });
+    
+    // Override all validation methods
     f51a.checkValidity = () => true;
     f51a.reportValidity = () => true;
+    f51a.setCustomValidity = () => {}; // Override to do nothing
     
     // Remove invalid class if it exists
     f51a.classList.remove('invalid');
@@ -138,6 +155,47 @@
       });
     });
     observer.observe(f51a, { attributes: true, attributeFilter: ['class'] });
+    
+    // Override the validity property
+    Object.defineProperty(f51a, 'validity', {
+      get: () => ({
+        valid: true,
+        valueMissing: false,
+        typeMismatch: false,
+        patternMismatch: false,
+        tooLong: false,
+        tooShort: false,
+        rangeUnderflow: false,
+        rangeOverflow: false,
+        stepMismatch: false,
+        badInput: false,
+        customError: false
+      })
+    });
+    
+    // Override validationMessage
+    Object.defineProperty(f51a, 'validationMessage', {
+      get: () => ''
+    });
+    
+    // Prevent form validation for 51a
+    const form = document.getElementById('lcForm');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        // Always clear 51a validation before form submission
+        f51a.setCustomValidity('');
+        f51a.removeAttribute('required');
+      });
+      
+      // Prevent validation on form events
+      form.addEventListener('invalid', (e) => {
+        if (e.target === f51a) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }, true);
+    }
   }
   const f41a_bank = document.getElementById('f41a_bank');
 

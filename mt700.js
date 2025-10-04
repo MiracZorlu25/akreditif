@@ -668,26 +668,43 @@
       mt51a.removeAttribute('required');
       mt51a.setCustomValidity(''); // Clear any validation message
       
-      // Prevent all validation events
+      // Prevent all validation events and messages
       mt51a.addEventListener('invalid', (e) => {
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation();
+        mt51a.setCustomValidity(''); // Clear message immediately
         return false;
+      });
+      
+      // Prevent validation on form events
+      mt51a.addEventListener('change', () => {
+        mt51a.setCustomValidity('');
+        mt51a.removeAttribute('required');
       });
       
       // Clear validation on input
       mt51a.addEventListener('input', () => {
         mt51a.setCustomValidity('');
+        mt51a.removeAttribute('required');
       });
       
       // Clear validation on blur
       mt51a.addEventListener('blur', () => {
         mt51a.setCustomValidity('');
+        mt51a.removeAttribute('required');
       });
       
-      // Override checkValidity to always return true
+      // Clear validation on focus
+      mt51a.addEventListener('focus', () => {
+        mt51a.setCustomValidity('');
+        mt51a.removeAttribute('required');
+      });
+      
+      // Override all validation methods
       mt51a.checkValidity = () => true;
       mt51a.reportValidity = () => true;
+      mt51a.setCustomValidity = () => {}; // Override to do nothing
       
       // Remove invalid class if it exists
       mt51a.classList.remove('invalid');
@@ -703,6 +720,47 @@
         });
       });
       observer.observe(mt51a, { attributes: true, attributeFilter: ['class'] });
+      
+      // Override the validity property
+      Object.defineProperty(mt51a, 'validity', {
+        get: () => ({
+          valid: true,
+          valueMissing: false,
+          typeMismatch: false,
+          patternMismatch: false,
+          tooLong: false,
+          tooShort: false,
+          rangeUnderflow: false,
+          rangeOverflow: false,
+          stepMismatch: false,
+          badInput: false,
+          customError: false
+        })
+      });
+      
+      // Override validationMessage
+      Object.defineProperty(mt51a, 'validationMessage', {
+        get: () => ''
+      });
+      
+      // Prevent form validation for mt51a
+      const form = document.getElementById('mt700Form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          // Always clear mt51a validation before form submission
+          mt51a.setCustomValidity('');
+          mt51a.removeAttribute('required');
+        });
+        
+        // Prevent validation on form events
+        form.addEventListener('invalid', (e) => {
+          if (e.target === mt51a) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }, true);
+      }
     }
   });
 
