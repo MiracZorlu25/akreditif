@@ -661,13 +661,48 @@
   document.addEventListener('DOMContentLoaded', () => {
     loadFormData();
     
-    // Disable validation for mt51a field (optional field)
+    // Completely disable validation for mt51a field (optional field)
     const mt51a = document.getElementById('mt51a');
     if (mt51a) {
+      // Remove any required attribute that might be added dynamically
+      mt51a.removeAttribute('required');
       mt51a.setCustomValidity(''); // Clear any validation message
+      
+      // Prevent all validation events
       mt51a.addEventListener('invalid', (e) => {
-        e.preventDefault(); // Prevent validation
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
       });
+      
+      // Clear validation on input
+      mt51a.addEventListener('input', () => {
+        mt51a.setCustomValidity('');
+      });
+      
+      // Clear validation on blur
+      mt51a.addEventListener('blur', () => {
+        mt51a.setCustomValidity('');
+      });
+      
+      // Override checkValidity to always return true
+      mt51a.checkValidity = () => true;
+      mt51a.reportValidity = () => true;
+      
+      // Remove invalid class if it exists
+      mt51a.classList.remove('invalid');
+      
+      // Prevent invalid class from being added
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            if (mt51a.classList.contains('invalid')) {
+              mt51a.classList.remove('invalid');
+            }
+          }
+        });
+      });
+      observer.observe(mt51a, { attributes: true, attributeFilter: ['class'] });
     }
   });
 

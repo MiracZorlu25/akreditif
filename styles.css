@@ -30,6 +30,9 @@ button.secondary{background:#334155}
 .error-msg{display:flex;align-items:flex-start;gap:6px;color:var(--danger);font-size:12px;margin-top:6px}
 .error-msg:before{content:"⚠";display:inline-block}
 input.invalid, textarea.invalid, select.invalid{border-color:var(--danger);outline:0}
+/* 51a field should never show validation errors */
+#f51a, #mt51a{border-color:var(--border) !important}
+#f51a:invalid, #mt51a:invalid{border-color:var(--border) !important}
 .warn-msg{display:flex;align-items:flex-start;gap:6px;color:#eab308;font-size:12px;margin-top:6px}
 .warn-msg:before{content:"⚠";display:inline-block}
 .hidden{display:none}

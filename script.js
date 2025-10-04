@@ -97,12 +97,47 @@
   const f58a = document.getElementById('f58a');
   const f51a = document.getElementById('f51a');
   
-  // Disable validation for 51a field (optional field)
+  // Completely disable validation for 51a field (optional field)
   if (f51a) {
+    // Remove any required attribute that might be added dynamically
+    f51a.removeAttribute('required');
     f51a.setCustomValidity(''); // Clear any validation message
+    
+    // Prevent all validation events
     f51a.addEventListener('invalid', (e) => {
-      e.preventDefault(); // Prevent validation
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
     });
+    
+    // Clear validation on input
+    f51a.addEventListener('input', () => {
+      f51a.setCustomValidity('');
+    });
+    
+    // Clear validation on blur
+    f51a.addEventListener('blur', () => {
+      f51a.setCustomValidity('');
+    });
+    
+    // Override checkValidity to always return true
+    f51a.checkValidity = () => true;
+    f51a.reportValidity = () => true;
+    
+    // Remove invalid class if it exists
+    f51a.classList.remove('invalid');
+    
+    // Prevent invalid class from being added
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          if (f51a.classList.contains('invalid')) {
+            f51a.classList.remove('invalid');
+          }
+        }
+      });
+    });
+    observer.observe(f51a, { attributes: true, attributeFilter: ['class'] });
   }
   const f41a_bank = document.getElementById('f41a_bank');
 
