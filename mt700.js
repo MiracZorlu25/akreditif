@@ -252,6 +252,33 @@
   function generateMt700Pdf(){
     const get = id => (localStorage.getItem(id) || '').toString();
     
+    // Validate dates before generating PDF
+    const f31D = get('f31D');
+    const f31C = get('f31C');
+    const f44C = get('f44C');
+    
+    if (f31D) {
+      const expiryDate = new Date(f31D);
+      
+      // Check 31C against 31D
+      if (f31C) {
+        const startDate = new Date(f31C);
+        if (startDate > expiryDate) {
+          alert('Başlangıç tarihi (31C) akreditifin vadesinden (31D) büyük olamaz. PDF oluşturulamıyor.');
+          return;
+        }
+      }
+      
+      // Check 44C against 31D
+      if (f44C) {
+        const shipmentDate = new Date(f44C);
+        if (shipmentDate > expiryDate) {
+          alert('Son yükleme tarihi (44C) akreditifin vadesinden (31D) büyük olamaz. PDF oluşturulamıyor.');
+          return;
+        }
+      }
+    }
+    
     // Validate 27 field format before generating PDF
     const f27Value = get('f27');
     if (f27Value && !/^\d+\/\d+$/.test(f27Value)) {
