@@ -327,24 +327,6 @@
       }
     }
     
-    // Check 51A field and show warning if empty (but allow PDF generation)
-    const f51aValue = get('f51a');
-    if (!f51aValue || f51aValue.trim() === '') {
-      const userConfirm = confirm(
-        '⚠️ UYARI: 51A - Amir/Alıcının bankası alanı boş!\n\n' +
-        'Bu alan opsiyonel olmasına rağmen, akreditif işlemlerinde önemlidir.\n' +
-        'Boş bırakmanız durumunda:\n' +
-        '• Banka işlem süreçlerinde gecikme olabilir\n' +
-        '• Ek bilgi talep edilebilir\n' +
-        '• İşlem reddedilebilir\n\n' +
-        'PDF oluşturmaya devam etmek istiyor musunuz?'
-      );
-      
-      if (!userConfirm) {
-        return;
-      }
-    }
-    
     const v = {
       f27:f27Value, f40A:get('f40A'), f20:get('f20'), f23:get('f23'), f31C:get('f31C'), f40E:get('f40E')||get('f40E_other'),
       f31D:get('f31D'), f51a:get('f51a'), f50:get('f50'), f59:get('f59'), f32B_ccy:get('f32B_ccy'), f32B_amt:get('f32B_amt'),
