@@ -197,86 +197,6 @@
       }, true);
     }
   }
-  
-  // Disable validation for all optional fields (marked with "O")
-  const optionalFields = [
-    'f23', 'f51a', 'f39A', 'f39B', 'f39C_ccy', 'f39C_amt', 'f39C_ccy_other',
-    'f42P', 'f43P', 'f43T', 'f44A', 'f44E', 'f44F', 'f44B', 'f44C', 'f44D',
-    'f45A', 'f46A', 'f47A', 'f49G', 'f49H', 'f71D', 'f48', 'f58a', 'f57a'
-  ];
-  
-  function disableValidationForField(fieldId) {
-    const field = document.getElementById(fieldId);
-    if (!field) return;
-    
-    // Remove any required attribute
-    field.removeAttribute('required');
-    field.setCustomValidity('');
-    
-    // Prevent all validation events and messages
-    field.addEventListener('invalid', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      field.setCustomValidity('');
-      return false;
-    });
-    
-    // Clear validation on all events
-    ['change', 'input', 'blur', 'focus'].forEach(eventType => {
-      field.addEventListener(eventType, () => {
-        field.setCustomValidity('');
-        field.removeAttribute('required');
-      });
-    });
-    
-    // Override validation methods
-    field.checkValidity = () => true;
-    field.reportValidity = () => true;
-    field.setCustomValidity = () => {};
-    
-    // Remove invalid class
-    field.classList.remove('invalid');
-    
-    // Prevent invalid class from being added
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          if (field.classList.contains('invalid')) {
-            field.classList.remove('invalid');
-          }
-        }
-      });
-    });
-    observer.observe(field, { attributes: true, attributeFilter: ['class'] });
-    
-    // Override validity properties
-    Object.defineProperty(field, 'validity', {
-      get: () => ({
-        valid: true,
-        valueMissing: false,
-        typeMismatch: false,
-        patternMismatch: false,
-        tooLong: false,
-        tooShort: false,
-        rangeUnderflow: false,
-        rangeOverflow: false,
-        stepMismatch: false,
-        badInput: false,
-        customError: false
-      })
-    });
-    
-    Object.defineProperty(field, 'validationMessage', {
-      get: () => ''
-    });
-  }
-  
-  // Apply validation disabling to all optional fields
-  optionalFields.forEach(fieldId => {
-    disableValidationForField(fieldId);
-  });
-  
   const f41a_bank = document.getElementById('f41a_bank');
 
   // Contextual helper texts under fields
@@ -701,8 +621,8 @@
   form?.addEventListener('submit', (e)=>{
     clearFieldErrors();
     // Tüm görünür alanları zorunlu olarak değerlendir
-    const allFields = Array.from(form.querySelectorAll('input, select, textarea'))
-      .filter(el => shouldValidateField(el));
+  const allFields = Array.from(form.querySelectorAll('input, select, textarea'))
+      .filter(el => shouldValidateField(el) && el.id !== 'f51a');
     allFields.forEach(el => {
       const val = (el.value||'').toString().trim();
       if (!val) addFieldError(el, 'Bu alan boş bırakılamaz');
@@ -767,7 +687,7 @@
       group?.querySelector('.error-msg')?.remove();
       el.classList.remove('invalid');
       // basic live rules
-      if (shouldValidateField(el)){
+      if (shouldValidateField(el) && el.id !== 'f51a'){
         if (!(el.value||'').toString().trim()) addFieldError(el,'Bu alan boş bırakılamaz');
       }
       if (el.id==='f32B_ccy'){

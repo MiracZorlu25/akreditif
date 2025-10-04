@@ -30,25 +30,9 @@ button.secondary{background:#334155}
 .error-msg{display:flex;align-items:flex-start;gap:6px;color:var(--danger);font-size:12px;margin-top:6px}
 .error-msg:before{content:"⚠";display:inline-block}
 input.invalid, textarea.invalid, select.invalid{border-color:var(--danger);outline:0}
-/* Optional fields should never show validation errors */
-#f23, #f51a, #f39A, #f39B, #f39C_ccy, #f39C_amt, #f39C_ccy_other,
-#f42P, #f43P, #f43T, #f44A, #f44E, #f44F, #f44B, #f44C, #f44D,
-#f45A, #f46A, #f47A, #f49G, #f49H, #f71D, #f48, #f58a, #f57a,
-#mt23, #mt51a, #mt39A, #mt39B, #mt39C_ccy, #mt39C_amt, #mt39C_ccy_other, #mt39C_desc,
-#mt42C, #mt42a, #mt42M, #mt42P, #mt43P, #mt43T, #mt44A, #mt44E, #mt44F, #mt44B,
-#mt44C, #mt44D, #mt45A, #mt46A, #mt47A, #mt49G, #mt49H, #mt71D, #mt48, #mt58a,
-#mt53a, #mt78, #mt57a, #mt72Z {
-  border-color:var(--border) !important;
-}
-#f23:invalid, #f51a:invalid, #f39A:invalid, #f39B:invalid, #f39C_ccy:invalid, #f39C_amt:invalid, #f39C_ccy_other:invalid,
-#f42P:invalid, #f43P:invalid, #f43T:invalid, #f44A:invalid, #f44E:invalid, #f44F:invalid, #f44B:invalid, #f44C:invalid, #f44D:invalid,
-#f45A:invalid, #f46A:invalid, #f47A:invalid, #f49G:invalid, #f49H:invalid, #f71D:invalid, #f48:invalid, #f58a:invalid, #f57a:invalid,
-#mt23:invalid, #mt51a:invalid, #mt39A:invalid, #mt39B:invalid, #mt39C_ccy:invalid, #mt39C_amt:invalid, #mt39C_ccy_other:invalid, #mt39C_desc:invalid,
-#mt42C:invalid, #mt42a:invalid, #mt42M:invalid, #mt42P:invalid, #mt43P:invalid, #mt43T:invalid, #mt44A:invalid, #mt44E:invalid, #mt44F:invalid, #mt44B:invalid,
-#mt44C:invalid, #mt44D:invalid, #mt45A:invalid, #mt46A:invalid, #mt47A:invalid, #mt49G:invalid, #mt49H:invalid, #mt71D:invalid, #mt48:invalid, #mt58a:invalid,
-#mt53a:invalid, #mt78:invalid, #mt57a:invalid, #mt72Z:invalid {
-  border-color:var(--border) !important;
-}
+/* 51a field should never show validation errors */
+#f51a, #mt51a{border-color:var(--border) !important}
+#f51a:invalid, #mt51a:invalid{border-color:var(--border) !important}
 .warn-msg{display:flex;align-items:flex-start;gap:6px;color:#eab308;font-size:12px;margin-top:6px}
 .warn-msg:before{content:"⚠";display:inline-block}
 .hidden{display:none}
