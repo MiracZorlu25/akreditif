@@ -418,6 +418,37 @@
     return num.toFixed(2);
   }
 
+  // Convert number to Turkish format (12234.56 -> 12.234,56)
+  function formatToTurkishCurrency(value) {
+    if (!value) return '';
+    
+    // Remove any non-numeric characters except dots and commas
+    let cleaned = String(value).replace(/[^\d.,]/g, '');
+    
+    // If already in Turkish format, return as is
+    if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(cleaned)) {
+      return cleaned;
+    }
+    
+    // Convert to number
+    let num;
+    if (cleaned.includes(',')) {
+      // Turkish format: replace dots with nothing, comma with dot
+      num = parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+    } else {
+      // Standard format
+      num = parseFloat(cleaned);
+    }
+    
+    if (isNaN(num)) return '';
+    
+    // Format to Turkish currency format
+    return num.toLocaleString('tr-TR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
   // Load saved data on page load - ONLY if user has previously entered data
   function loadFormData() {
     if (!form) return;
@@ -436,6 +467,20 @@
       }
     });
   }
+
+  // Auto-format currency fields to Turkish format (000.000.000,00)
+  const currencyFields = ['mt32B_amt', 'mt39B', 'mt39C_amt'];
+  currencyFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener('blur', (e) => {
+        const formatted = formatToTurkishCurrency(e.target.value);
+        if (formatted && formatted !== e.target.value) {
+          e.target.value = formatted;
+        }
+      });
+    }
+  });
 
   // Load data when page loads
   document.addEventListener('DOMContentLoaded', loadFormData);

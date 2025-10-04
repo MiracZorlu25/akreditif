@@ -335,8 +335,23 @@
     }
   });
   
-  // Real-time date validation for 44C and 44D fields against 31D
+  // Auto-format currency fields to Turkish format (000.000.000,00)
+  const currencyFields = ['f32B_amt', 'f39B', 'f39C_amt'];
+  currencyFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener('blur', (e) => {
+        const formatted = formatToTurkishCurrency(e.target.value);
+        if (formatted && formatted !== e.target.value) {
+          e.target.value = formatted;
+        }
+      });
+    }
+  });
+  
+  // Real-time date validation for 31C, 44C and 44D fields against 31D
   const f31D = document.getElementById('f31D');
+  const f31C = document.getElementById('f31C');
   const f44C = document.getElementById('f44C');
   const f44D = document.getElementById('f44D');
   
@@ -345,6 +360,17 @@
     if (!f31DValue) return; // No expiry date to validate against
     
     const expiryDate = new Date(f31DValue);
+    
+    // Validate 31C (başlangıç tarihi)
+    if (f31C?.value) {
+      const startDate = new Date(f31C.value);
+      if (startDate > expiryDate) {
+        f31C.setCustomValidity('Başlangıç tarihi (31C), akreditifin vadesini (31D) geçemez');
+        f31C.reportValidity();
+      } else {
+        f31C.setCustomValidity('');
+      }
+    }
     
     // Validate 44C
     if (f44C?.value) {
@@ -378,6 +404,7 @@
   }
   
   f31D?.addEventListener('change', validateDateAgainst31D);
+  f31C?.addEventListener('change', validateDateAgainst31D);
   f44C?.addEventListener('change', validateDateAgainst31D);
   f44D?.addEventListener('input', validateDateAgainst31D);
   
@@ -818,6 +845,37 @@
     if (isNaN(num)) return '0.00';
     
     return num.toFixed(2);
+  }
+
+  // Convert number to Turkish format (12234.56 -> 12.234,56)
+  function formatToTurkishCurrency(value) {
+    if (!value) return '';
+    
+    // Remove any non-numeric characters except dots and commas
+    let cleaned = String(value).replace(/[^\d.,]/g, '');
+    
+    // If already in Turkish format, return as is
+    if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(cleaned)) {
+      return cleaned;
+    }
+    
+    // Convert to number
+    let num;
+    if (cleaned.includes(',')) {
+      // Turkish format: replace dots with nothing, comma with dot
+      num = parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+    } else {
+      // Standard format
+      num = parseFloat(cleaned);
+    }
+    
+    if (isNaN(num)) return '';
+    
+    // Format to Turkish currency format
+    return num.toLocaleString('tr-TR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 
   function toIso(dateValue){
