@@ -340,10 +340,23 @@
   currencyFields.forEach(fieldId => {
     const field = document.getElementById(fieldId);
     if (field) {
+      // Format on blur (when user leaves the field)
       field.addEventListener('blur', (e) => {
         const formatted = formatToTurkishCurrency(e.target.value);
         if (formatted && formatted !== e.target.value) {
           e.target.value = formatted;
+          console.log(`Formatted ${fieldId}: ${e.target.value} -> ${formatted}`);
+        }
+      });
+      
+      // Also format on Enter key
+      field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const formatted = formatToTurkishCurrency(e.target.value);
+          if (formatted && formatted !== e.target.value) {
+            e.target.value = formatted;
+            console.log(`Formatted ${fieldId} on Enter: ${formatted}`);
+          }
         }
       });
     }
@@ -878,33 +891,68 @@
 
   // Convert number to Turkish format (12234.56 -> 12.234,56)
   function formatToTurkishCurrency(value) {
-    if (!value) return '';
+    if (!value || value.toString().trim() === '') return '';
+    
+    const str = value.toString().trim();
     
     // Remove any non-numeric characters except dots and commas
-    let cleaned = String(value).replace(/[^\d.,]/g, '');
+    let cleaned = str.replace(/[^\d.,]/g, '');
     
-    // If already in Turkish format, return as is
+    if (!cleaned) return '';
+    
+    // If already in perfect Turkish format, return as is
     if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(cleaned)) {
       return cleaned;
     }
     
     // Convert to number
     let num;
-    if (cleaned.includes(',')) {
-      // Turkish format: replace dots with nothing, comma with dot
-      num = parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+    
+    // Handle different input formats
+    if (cleaned.includes(',') && cleaned.includes('.')) {
+      // Format like 1.234.567,89 (Turkish) or 1,234,567.89 (US)
+      const lastComma = cleaned.lastIndexOf(',');
+      const lastDot = cleaned.lastIndexOf('.');
+      
+      if (lastComma > lastDot) {
+        // Turkish format: 1.234.567,89
+        num = parseFloat(cleaned.replace(/\./g, '').replace(',', '.'));
+      } else {
+        // US format: 1,234,567.89
+        num = parseFloat(cleaned.replace(/,/g, ''));
+      }
+    } else if (cleaned.includes(',')) {
+      // Only comma: could be decimal (5,50) or thousands (1,234)
+      const parts = cleaned.split(',');
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // Decimal comma: 5,50
+        num = parseFloat(cleaned.replace(',', '.'));
+      } else {
+        // Thousands comma: 1,234
+        num = parseFloat(cleaned.replace(/,/g, ''));
+      }
+    } else if (cleaned.includes('.')) {
+      // Only dot: could be decimal (5.50) or thousands (1.234)
+      const parts = cleaned.split('.');
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // Decimal dot: 5.50
+        num = parseFloat(cleaned);
+      } else {
+        // Thousands dot: 1.234.567
+        num = parseFloat(cleaned.replace(/\./g, ''));
+      }
     } else {
-      // Standard format
+      // Only numbers: 12345
       num = parseFloat(cleaned);
     }
     
-    if (isNaN(num)) return '';
+    if (isNaN(num) || num < 0) return '';
     
     // Format to Turkish currency format
-    return num.toLocaleString('tr-TR', {
+    return new Intl.NumberFormat('tr-TR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    });
+    }).format(num);
   }
 
   function toIso(dateValue){
